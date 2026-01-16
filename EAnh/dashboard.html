@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - EAnh</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        /* Ẩn trang web cho đến khi kiểm tra đăng nhập xong để tránh giật lag */
+        body { visibility: hidden; opacity: 0; transition: opacity 0.5s ease-in; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">EAnh</div>
+                <nav>
+                    <ul class="nav-menu">
+                        <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                        <li><a href="pages/profile.html">Hồ sơ (<span id="navUserName">...</span>)</a></li>
+                        <li><a href="#" onclick="handleLogout(event)">Đăng xuất</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" style="margin-top: 2rem;">
+        <div class="dashboard-grid">
+            <aside class="sidebar">
+                <h3 style="margin-bottom: 1.5rem; color: var(--text-light);">Học tập</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="pages/vocabulary.html"><span>📚</span> <span>Từ vựng</span></a></li>
+                    <li><a href="pages/grammar.html"><span>📖</span> <span>Ngữ pháp</span></a></li>
+                    <li><a href="pages/listening.html"><span>🎧</span> <span>Luyện nghe</span></a></li>
+                    <li><a href="pages/reading.html"><span>📰</span> <span>Luyện đọc</span></a></li>
+                    <li><a href="pages/writing.html"><span>✍️</span> <span>Luyện viết</span></a></li>
+                    <li><a href="pages/speaking.html"><span>🎤</span> <span>Luyện nói</span></a></li>
+                </ul>
+
+                <h3 style="margin: 1.5rem 0; color: var(--text-light);">Kiểm tra</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="pages/mock-test.html"><span>📝</span> <span>Thi thử</span></a></li>
+                    <li><a href="pages/result.html"><span>📊</span> <span>Kết quả</span></a></li>
+                </ul>
+            </aside>
+
+            <main>
+                <h1 style="margin-bottom: 2rem;">Chào mừng trở lại, <span id="userName" style="color: #4F46E5;">Bạn</span>! 👋</h1>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="vocabCount">0</div>
+                        <div class="stat-label">Từ vựng đã học</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
+                        <div class="stat-value" id="testsCompleted">0</div>
+                        <div class="stat-label">Bài kiểm tra</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                        <div class="stat-value" id="studyStreak">0</div>
+                        <div class="stat-label">Ngày liên tiếp</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #ec4899, #db2777);">
+                        <div class="stat-value" id="avgScore">0%</div>
+                        <div class="stat-label">Điểm trung bình</div>
+                    </div>
+                </div>
+
+                <h2 style="margin-bottom: 1.5rem;">Kỹ năng học tập</h2>
+                <div class="grid grid-3">
+                    <div class="card">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
+                        <h3 class="card-title">Từ vựng</h3>
+                        <p style="color: var(--text-gray); margin-bottom: 1rem;">Học từ vựng theo chủ đề</p>
+                        <a href="pages/vocabulary.html" class="btn btn-primary">Bắt đầu</a>
+                    </div>
+                    <div class="card">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📖</div>
+                        <h3 class="card-title">Ngữ pháp</h3>
+                        <p style="color: var(--text-gray); margin-bottom: 1rem;">Nắm vững cấu trúc câu</p>
+                        <a href="pages/grammar.html" class="btn btn-primary">Bắt đầu</a>
+                    </div>
+                    <div class="card">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🎧</div>
+                        <h3 class="card-title">Luyện nghe</h3>
+                        <p style="color: var(--text-gray); margin-bottom: 1rem;">Cải thiện kỹ năng nghe</p>
+                        <a href="pages/listening.html" class="btn btn-primary">Bắt đầu</a>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Cấu hình đường dẫn API tuyệt đối (Để chạy được cả trên Live Server)
+        // Nếu folder dự án của bạn trong htdocs là EANH thì để nguyên
+        const BASE_API = 'http://localhost/EANH/backend'; 
+
+        // 1. KIỂM TRA ĐĂNG NHẬP NGAY LẬP TỨC
+        (function checkAuth() {
+            const userInfo = localStorage.getItem('user_info');
+            
+            if (!userInfo) {
+                // Nếu không có thông tin trong bộ nhớ -> Đá về login
+                window.location.replace('login.html');
+            } else {
+                // Nếu có -> Hiện trang web lên
+                document.body.style.visibility = 'visible';
+                document.body.style.opacity = '1';
+                
+                // Hiển thị tên người dùng
+                try {
+                    const user = JSON.parse(userInfo);
+                    if(document.getElementById('userName')) document.getElementById('userName').textContent = user.full_name;
+                    if(document.getElementById('navUserName')) document.getElementById('navUserName').textContent = user.full_name;
+                } catch (e) {
+                    console.error("Lỗi parse user info");
+                }
+            }
+        })();
+
+        // 2. HÀM ĐĂNG XUẤT
+        function handleLogout(e) {
+            e.preventDefault();
+            if(confirm('Bạn muốn đăng xuất?')) {
+                localStorage.removeItem('user_info');
+                window.location.replace('login.html');
+            }
+        }
+
+        // 3. LOAD SỐ LIỆU THỐNG KÊ (Dùng đường dẫn tuyệt đối)
+        async function loadStats() {
+            try {
+                // Gọi API stats từ XAMPP
+                const response = await fetch(`${BASE_API}/api/stats.php`);
+                
+                if (!response.ok) throw new Error("API Stats chưa sẵn sàng");
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('vocabCount').textContent = data.vocab_count || 0;
+                    document.getElementById('testsCompleted').textContent = data.tests_completed || 0;
+                    document.getElementById('studyStreak').textContent = data.study_streak || 0;
+                    document.getElementById('avgScore').textContent = (data.avg_score || 0) + '%';
+                }
+            } catch (error) {
+                console.warn('Không lấy được thống kê (Có thể do chưa có file stats.php), dùng số liệu mặc định.');
+            }
+        }
+
+        // Gọi load stats sau khi giao diện đã hiện
+        setTimeout(loadStats, 500);
+    </script>
+</body>
+</html>

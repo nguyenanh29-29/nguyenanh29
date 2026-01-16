@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - EAnh</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">EAnh Admin</div>
+                <nav>
+                    <ul class="nav-menu">
+                        <li><a href="admin-dashboard.html" class="active">Dashboard</a></li>
+                        <li><a href="backend/auth/logout.php">Đăng xuất</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" style="margin-top: 2rem;">
+        <div class="dashboard-grid">
+            <!-- Admin Sidebar -->
+            <aside class="sidebar">
+                <h3 style="margin-bottom: 1.5rem; color: var(--text-light);">Quản lý</h3>
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="#users" onclick="showSection('users')">
+                            <span>👥</span>
+                            <span>Người dùng</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#vocabulary" onclick="showSection('vocabulary')">
+                            <span>📚</span>
+                            <span>Từ vựng</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#grammar" onclick="showSection('grammar')">
+                            <span>📖</span>
+                            <span>Ngữ pháp</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#tests" onclick="showSection('tests')">
+                            <span>📝</span>
+                            <span>Bài kiểm tra</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#stats" onclick="showSection('stats')">
+                            <span>📊</span>
+                            <span>Thống kê</span>
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- Main Content -->
+            <main>
+                <h1 style="margin-bottom: 2rem;">Quản trị hệ thống 🛠️</h1>
+
+                <!-- System Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalUsers">0</div>
+                        <div class="stat-label">Tổng người dùng</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
+                        <div class="stat-value" id="totalVocab">0</div>
+                        <div class="stat-label">Từ vựng</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                        <div class="stat-value" id="totalTests">0</div>
+                        <div class="stat-label">Bài kiểm tra</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #ec4899, #db2777);">
+                        <div class="stat-value" id="activeToday">0</div>
+                        <div class="stat-label">Hoạt động hôm nay</div>
+                    </div>
+                </div>
+
+                <!-- Users Section -->
+                <div id="usersSection" class="admin-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2>Quản lý người dùng</h2>
+                        <button class="btn btn-primary" onclick="showAddUserModal()">
+                            + Thêm người dùng
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--border);">
+                                    <th style="padding: 1rem; text-align: left;">ID</th>
+                                    <th style="padding: 1rem; text-align: left;">Email</th>
+                                    <th style="padding: 1rem; text-align: left;">Họ tên</th>
+                                    <th style="padding: 1rem; text-align: left;">Vai trò</th>
+                                    <th style="padding: 1rem; text-align: left;">Ngày tạo</th>
+                                    <th style="padding: 1rem; text-align: left;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable">
+                                <tr>
+                                    <td colspan="6" style="padding: 2rem; text-align: center; color: var(--text-gray);">
+                                        Đang tải dữ liệu...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Vocabulary Section -->
+                <div id="vocabularySection" class="admin-section hidden">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2>Quản lý từ vựng</h2>
+                        <button class="btn btn-primary" onclick="showAddVocabModal()">
+                            + Thêm từ vựng
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="searchVocab" placeholder="Tìm kiếm từ vựng...">
+                        </div>
+                        <div id="vocabList" style="margin-top: 1rem;">
+                            <p style="color: var(--text-gray); text-align: center; padding: 2rem;">
+                                Đang tải dữ liệu...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grammar Section -->
+                <div id="grammarSection" class="admin-section hidden">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2>Quản lý ngữ pháp</h2>
+                        <button class="btn btn-primary" onclick="showAddGrammarModal()">
+                            + Thêm bài ngữ pháp
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <div id="grammarList">
+                            <p style="color: var(--text-gray); text-align: center; padding: 2rem;">
+                                Đang tải dữ liệu...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tests Section -->
+                <div id="testsSection" class="admin-section hidden">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2>Quản lý bài kiểm tra</h2>
+                        <button class="btn btn-primary" onclick="showAddTestModal()">
+                            + Tạo bài kiểm tra
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <div id="testsList">
+                            <p style="color: var(--text-gray); text-align: center; padding: 2rem;">
+                                Đang tải dữ liệu...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Section -->
+                <div id="statsSection" class="admin-section hidden">
+                    <h2 style="margin-bottom: 1.5rem;">Thống kê chi tiết</h2>
+                    
+                    <div class="grid grid-2">
+                        <div class="card">
+                            <h3 class="card-title">Người dùng mới theo tháng</h3>
+                            <canvas id="userChart" height="200"></canvas>
+                        </div>
+                        
+                        <div class="card">
+                            <h3 class="card-title">Hoạt động học tập</h3>
+                            <canvas id="activityChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Section management
+        function showSection(sectionName) {
+            const sections = document.querySelectorAll('.admin-section');
+            sections.forEach(section => section.classList.add('hidden'));
+            
+            const targetSection = document.getElementById(sectionName + 'Section');
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
+            
+            // Update active menu
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.closest('a').classList.add('active');
+        }
+
+        // Load admin stats
+        async function loadAdminStats() {
+            try {
+                const response = await fetch('backend/api/admin-stats.php');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('totalUsers').textContent = data.total_users || 0;
+                    document.getElementById('totalVocab').textContent = data.total_vocab || 0;
+                    document.getElementById('totalTests').textContent = data.total_tests || 0;
+                    document.getElementById('activeToday').textContent = data.active_today || 0;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load users
+        async function loadUsers() {
+            try {
+                const response = await fetch('backend/api/admin-users.php');
+                const data = await response.json();
+                
+                const tbody = document.getElementById('usersTable');
+                
+                if (data.success && data.users.length > 0) {
+                    tbody.innerHTML = data.users.map(user => `
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem;">${user.id}</td>
+                            <td style="padding: 1rem;">${user.email}</td>
+                            <td style="padding: 1rem;">${user.full_name || '-'}</td>
+                            <td style="padding: 1rem;">
+                                <span style="padding: 0.25rem 0.75rem; background: ${user.role === 'admin' ? 'var(--danger)' : 'var(--primary)'}; border-radius: 4px; font-size: 0.85rem;">
+                                    ${user.role}
+                                </span>
+                            </td>
+                            <td style="padding: 1rem;">${new Date(user.created_at).toLocaleDateString('vi-VN')}</td>
+                            <td style="padding: 1rem;">
+                                <button class="btn btn-danger" onclick="deleteUser(${user.id})" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                                    Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="6" style="padding: 2rem; text-align: center; color: var(--text-gray);">Không có dữ liệu</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        // Modal placeholders
+        function showAddUserModal() {
+            alert('Chức năng đang phát triển');
+        }
+        
+        function showAddVocabModal() {
+            alert('Chức năng đang phát triển');
+        }
+        
+        function showAddGrammarModal() {
+            alert('Chức năng đang phát triển');
+        }
+        
+        function showAddTestModal() {
+            alert('Chức năng đang phát triển');
+        }
+
+        function deleteUser(id) {
+            if (confirm('Bạn có chắc muốn xóa người dùng này?')) {
+                alert('Chức năng đang phát triển');
+            }
+        }
+
+        // Initialize
+        loadAdminStats();
+        loadUsers();
+    </script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học từ vựng - EAnh</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">EAnh</div>
+                <nav>
+                    <ul class="nav-menu">
+                        <li><a href="../dashboard.html">Dashboard</a></li>
+                        <li><a href="vocabulary.html" class="active">Từ vựng</a></li>
+                        <li><a href="../backend/auth/logout.php">Đăng xuất</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" style="margin-top: 2rem; margin-bottom: 2rem;">
+        <div style="max-width: 800px; margin: 0 auto;">
+            <h1 style="margin-bottom: 2rem;">📚 Học từ vựng</h1>
+
+            <!-- Filters -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Cấp độ</label>
+                        <select class="form-control" id="levelFilter">
+                            <option value="">Tất cả</option>
+                            <option value="A1">A1 - Cơ bản</option>
+                            <option value="A2">A2 - Sơ cấp</option>
+                            <option value="B1">B1 - Trung cấp</option>
+                            <option value="B2">B2 - Trung cao</option>
+                            <option value="C1">C1 - Cao cấp</option>
+                            <option value="C2">C2 - Thành thạo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Chủ đề</label>
+                        <select class="form-control" id="categoryFilter">
+                            <option value="">Tất cả</option>
+                            <option value="Greetings">Chào hỏi</option>
+                            <option value="Polite Expressions">Lịch sự</option>
+                            <option value="Adjectives">Tính từ</option>
+                            <option value="Verbs">Động từ</option>
+                            <option value="Nouns">Danh từ</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="loadVocabulary()">Tải từ vựng</button>
+            </div>
+
+            <!-- Flashcard -->
+            <div id="flashcardContainer" class="card" style="min-height: 400px; display: none;">
+                <div style="text-align: center;">
+                    <div style="margin-bottom: 2rem;">
+                        <span id="currentCard">0</span> / <span id="totalCards">0</span>
+                    </div>
+
+                    <div id="flashcard" style="cursor: pointer; padding: 3rem;" onclick="flipCard()">
+                        <div id="frontSide">
+                            <h2 id="word" style="font-size: 3rem; margin-bottom: 1rem;">-</h2>
+                            <p id="phonetic" style="color: var(--text-gray); font-size: 1.2rem;">-</p>
+                        </div>
+                        <div id="backSide" style="display: none;">
+                            <h3 style="margin-bottom: 1rem;">Nghĩa:</h3>
+                            <p id="meaning" style="font-size: 1.5rem; margin-bottom: 2rem;">-</p>
+                            <h3 style="margin-bottom: 1rem;">Ví dụ:</h3>
+                            <p id="example" style="font-style: italic; color: var(--text-gray);">-</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+                        <button class="btn btn-outline" onclick="previousCard()">← Trước</button>
+                        <button class="btn btn-primary" onclick="flipCard()">Lật thẻ</button>
+                        <button class="btn btn-outline" onclick="nextCard()">Tiếp →</button>
+                    </div>
+
+                    <div style="margin-top: 2rem;">
+                        <button class="btn btn-success" onclick="markAsLearned()">✓ Đã học</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div id="emptyState" class="card" style="text-align: center; padding: 3rem;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">📚</div>
+                <h3 style="margin-bottom: 1rem;">Chọn cấp độ và chủ đề để bắt đầu</h3>
+                <p style="color: var(--text-gray);">Hệ thống sẽ tạo bộ flashcard phù hợp với bạn</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let vocabulary = [];
+        let currentIndex = 0;
+        let isFlipped = false;
+
+        async function loadVocabulary() {
+            const level = document.getElementById('levelFilter').value;
+            const category = document.getElementById('categoryFilter').value;
+
+            try {
+                const params = new URLSearchParams();
+                if (level) params.append('level', level);
+                if (category) params.append('category', category);
+
+                const response = await fetch(`../backend/api/vocab.php?${params}`);
+                const data = await response.json();
+
+                if (data.success && data.vocabulary.length > 0) {
+                    vocabulary = data.vocabulary;
+                    currentIndex = 0;
+                    document.getElementById('emptyState').style.display = 'none';
+                    document.getElementById('flashcardContainer').style.display = 'block';
+                    showCard(0);
+                } else {
+                    alert('Không tìm thấy từ vựng nào');
+                }
+            } catch (error) {
+                alert('Có lỗi xảy ra khi tải từ vựng');
+            }
+        }
+
+        function showCard(index) {
+            if (index < 0 || index >= vocabulary.length) return;
+
+            const vocab = vocabulary[index];
+            currentIndex = index;
+
+            document.getElementById('word').textContent = vocab.word;
+            document.getElementById('phonetic').textContent = vocab.phonetic || '';
+            document.getElementById('meaning').textContent = vocab.meaning || '';
+            document.getElementById('example').textContent = vocab.example || '';
+
+            document.getElementById('currentCard').textContent = index + 1;
+            document.getElementById('totalCards').textContent = vocabulary.length;
+
+            // Reset flip
+            isFlipped = false;
+            document.getElementById('frontSide').style.display = 'block';
+            document.getElementById('backSide').style.display = 'none';
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            document.getElementById('frontSide').style.display = isFlipped ? 'none' : 'block';
+            document.getElementById('backSide').style.display = isFlipped ? 'block' : 'none';
+        }
+
+        function previousCard() {
+            if (currentIndex > 0) {
+                showCard(currentIndex - 1);
+            }
+        }
+
+        function nextCard() {
+            if (currentIndex < vocabulary.length - 1) {
+                showCard(currentIndex + 1);
+            }
+        }
+
+        async function markAsLearned() {
+            try {
+                const vocab = vocabulary[currentIndex];
+                const response = await fetch('../backend/api/vocab.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        vocab_id: vocab.id,
+                        completed: true,
+                        score: 100
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Đã lưu tiến độ!');
+                    nextCard();
+                }
+            } catch (error) {
+                console.error('Error saving progress:', error);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') previousCard();
+            if (e.key === 'ArrowRight') nextCard();
+            if (e.key === ' ') {
+                e.preventDefault();
+                flipCard();
+            }
+        });
+    </script>
+</body>
+</html>

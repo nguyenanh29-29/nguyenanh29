@@ -3,236 +3,617 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luyện Nghe - EAnh</title>
+    <title>Luyện nghe - EAnh</title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+
 <body>
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">EAnh</div>
-                <nav>
-                    <ul class="nav-menu">
-                        <li><a href="../dashboard.html">Dashboard</a></li>
-                        <li><a href="listening.html" class="active">Luyện nghe</a></li>
-                        <li><a href="../backend/auth/logout.php">Đăng xuất</a></li>
-                    </ul>
-                </nav>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🎓 EAnh</h2>
             </div>
-        </div>
-    </header>
+            <nav class="sidebar-nav">
+                <a href="../dashboard.html" class="nav-item">
+                    <span class="icon">📊</span> Dashboard
+                </a>
+                <a href="vocabulary.html" class="nav-item">
+                    <span class="icon">📚</span> Từ vựng
+                </a>
+                <a href="grammar.html" class="nav-item">
+                    <span class="icon">✏️</span> Ngữ pháp
+                </a>
+                <a href="listening.html" class="nav-item active">
+                    <span class="icon">🎧</span> Luyện nghe
+                </a>
+                <a href="reading.html" class="nav-item">
+                    <span class="icon">📖</span> Luyện đọc
+                </a>
+                <a href="writing.html" class="nav-item">
+                    <span class="icon">✍️</span> Luyện viết
+                </a>
+                <a href="speaking.html" class="nav-item">
+                    <span class="icon">🎤</span> Luyện nói
+                </a>
+                <a href="mock-test.html" class="nav-item">
+                    <span class="icon">📝</span> Thi thử
+                </a>
+                <a href="result.html" class="nav-item">
+                    <span class="icon">📈</span> Kết quả
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="profile.html" class="nav-item">
+                    <span class="icon">👤</span> Hồ sơ
+                </a>
+                <a href="#" id="logoutBtn" class="nav-item">
+                    <span class="icon">🚪</span> Đăng xuất
+                </a>
+            </div>
+        </aside>
 
-    <div class="container" style="margin-top: 2rem; margin-bottom: 2rem;">
-        <h1 style="margin-bottom: 2rem;">🎧 Luyện Nghe</h1>
+        <main class="main-content">
+            <header class="content-header">
+                <h1>🎧 Luyện nghe</h1>
+            </header>
 
-        <div style="max-width: 900px; margin: 0 auto;">
-            <!-- Filter -->
-            <div class="card" style="margin-bottom: 2rem;">
-                <div class="grid grid-2">
-                    <div class="form-group">
-                        <label class="form-label">Cấp độ</label>
-                        <select class="form-control" id="levelFilter">
-                            <option value="">Tất cả</option>
-                            <option value="A1">A1 - Cơ bản</option>
-                            <option value="A2">A2 - Sơ cấp</option>
-                            <option value="B1" selected>B1 - Trung cấp</option>
-                            <option value="B2">B2 - Trung cao</option>
-                            <option value="C1">C1 - Cao cấp</option>
-                        </select>
+            <div class="filter-section" style="margin-bottom: 2rem;">
+                <select id="levelFilter" class="filter-select">
+                    <option value="">Tất cả cấp độ</option>
+                    <option value="A1">A1 - Cơ bản</option>
+                    <option value="A2">A2 - Sơ cấp</option>
+                    <option value="B1">B1 - Trung cấp</option>
+                    <option value="B2">B2 - Trung cao</option>
+                    <option value="C1">C1 - Nâng cao</option>
+                    <option value="C2">C2 - Thành thạo</option>
+                </select>
+                
+                <button id="searchBtn" class="btn-primary">Tìm kiếm</button>
+            </div>
+
+            <div class="stats-grid" style="margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <div class="stat-icon">🎧</div>
+                    <div class="stat-info">
+                        <h3 id="totalListening">0</h3>
+                        <p>Bài nghe</p>
                     </div>
-                    <div style="display: flex; align-items: flex-end;">
-                        <button class="btn btn-primary" style="width: 100%;" onclick="loadListening()">Tải bài nghe</button>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <h3 id="completedListening">0</h3>
+                        <p>Đã hoàn thành</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-info">
+                        <h3 id="totalMinutes">0</h3>
+                        <p>Phút đã nghe</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Listening List -->
-            <div class="grid grid-2" id="listeningList">
-                <div class="card" style="text-align: center; padding: 3rem; grid-column: 1 / -1;">
-                    <div style="font-size: 4rem; margin-bottom: 1rem;">🎧</div>
-                    <h3 style="margin-bottom: 1rem;">Chọn cấp độ để bắt đầu</h3>
-                    <p style="color: var(--text-gray);">Luyện nghe với nhiều chủ đề khác nhau</p>
-                </div>
-            </div>
+            <div id="listeningList" class="listening-grid"></div>
+        </main>
+    </div>
 
-            <!-- Player Modal (hidden by default) -->
-            <div id="playerModal" class="hidden">
-                <div class="card">
-                    <h2 class="card-title" id="audioTitle">Tiêu đề</h2>
-                    
-                    <!-- Audio Player -->
-                    <div style="background: rgba(0,0,0,0.2); padding: 2rem; border-radius: 8px; margin: 2rem 0;">
-                        <audio id="audioPlayer" controls style="width: 100%;">
-                            <source id="audioSource" src="" type="audio/mpeg">
-                            Trình duyệt không hỗ trợ audio.
-                        </audio>
-                    </div>
-
-                    <!-- Transcript Toggle -->
-                    <button class="btn btn-outline" onclick="toggleTranscript()">
-                        <span id="transcriptBtn">📝 Hiện Script</span>
-                    </button>
-
-                    <div id="transcript" class="hidden" style="margin-top: 1rem; padding: 1.5rem; background: rgba(99, 102, 241, 0.1); border-radius: 8px; line-height: 1.8;">
-                    </div>
-
-                    <!-- Questions -->
-                    <div id="questionsSection" style="margin-top: 2rem;">
-                        <h3 style="margin-bottom: 1rem;">Câu hỏi:</h3>
-                        <div id="questionsList"></div>
-                        <button class="btn btn-success mt-2" onclick="submitAnswers()">Kiểm tra đáp án</button>
-                    </div>
-
-                    <button class="btn btn-primary mt-2" onclick="closePlayer()">Đóng</button>
-                </div>
-            </div>
+    <!-- Modal bài nghe -->
+    <div id="listeningModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 900px;">
+            <span class="close">&times;</span>
+            <div id="listeningDetail"></div>
         </div>
     </div>
 
+    <style>
+        .filter-section {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 0.75rem 1rem;
+            background: var(--dark-light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            cursor: pointer;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .listening-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .listening-card {
+            background: linear-gradient(135deg, var(--dark-light), var(--dark-lighter));
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .listening-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .listening-card::before {
+            content: '🎧';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 8rem;
+            opacity: 0.05;
+        }
+
+        .listening-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .listening-meta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .listening-level {
+            padding: 0.25rem 0.75rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .listening-duration {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .audio-player {
+            background: var(--dark);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .play-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .play-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.1);
+        }
+
+        .time-display {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .speed-control {
+            margin-left: auto;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .speed-btn {
+            padding: 0.25rem 0.75rem;
+            background: var(--dark-light);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .speed-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: var(--dark-light);
+            border-radius: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 10px;
+            transition: width 0.1s;
+        }
+
+        .transcript-box {
+            background: var(--dark);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 1.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+            line-height: 1.8;
+        }
+
+        .transcript-box h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .comprehension-section {
+            margin-top: 2rem;
+        }
+
+        .question-item {
+            background: var(--dark);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .answer-options {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .answer-option {
+            padding: 1rem;
+            background: var(--dark-light);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .answer-option:hover {
+            border-color: var(--primary);
+        }
+
+        .answer-option.selected {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .answer-option.correct {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .answer-option.wrong {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.2);
+        }
+    </style>
+
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/modal.js"></script>
+
     <script>
-        let currentListening = null;
-        let userAnswers = {};
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.id) {
+            window.location.href = '../login.html';
+        }
 
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                localStorage.clear();
+                window.location.href = '../login.html';
+            }
+        });
+
+        let currentAudio = null;
+        let currentListeningId = null;
+
+        // Load listening exercises
         async function loadListening() {
-            const level = document.getElementById('levelFilter').value;
             try {
-                const params = level ? `?level=${level}` : '';
-                const response = await fetch(`../backend/api/listening.php${params}`);
+                const level = document.getElementById('levelFilter').value;
+                const url = `../backend/api/listening.php?level=${level}&userId=${user.id}`;
+                const response = await fetch(url);
                 const data = await response.json();
-
-                const container = document.getElementById('listeningList');
-                if (data.success && data.listening.length > 0) {
-                    container.innerHTML = data.listening.map(item => `
-                        <div class="card" style="cursor: pointer;" onclick="playAudio(${item.id})">
-                            <div style="font-size: 3rem; margin-bottom: 1rem; text-align: center;">🎧</div>
-                            <h3 class="card-title">${item.title}</h3>
-                            <p style="color: var(--text-gray); margin-bottom: 1rem;">Cấp độ: ${item.level}</p>
-                            <button class="btn btn-primary" style="width: 100%;">Nghe ngay</button>
-                        </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = `
-                        <div class="card" style="text-align: center; padding: 3rem; grid-column: 1 / -1;">
-                            <p style="color: var(--text-gray);">Không có bài nghe nào</p>
-                        </div>
-                    `;
+                
+                if (data.success) {
+                    displayListening(data.listening);
+                    updateStats(data.stats);
                 }
             } catch (error) {
-                console.error('Error loading listening:', error);
+                console.error('Error:', error);
+                showToast('Lỗi tải dữ liệu', 'error');
             }
         }
 
-        async function playAudio(id) {
+        function displayListening(listening) {
+            const container = document.getElementById('listeningList');
+            if (listening.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); grid-column: 1/-1;">Không có bài nghe nào</p>';
+                return;
+            }
+
+            container.innerHTML = listening.map(item => `
+                <div class="listening-card" onclick="showListeningDetail(${item.id})">
+                    <div class="listening-title">${item.title}</div>
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                        ${item.content ? item.content.substring(0, 100) + '...' : 'Bài nghe thực hành'}
+                    </p>
+                    <div class="listening-meta">
+                        <span class="listening-level">${item.level}</span>
+                        <span class="listening-duration">⏱️ ${item.duration || 3} phút</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats(stats) {
+            document.getElementById('totalListening').textContent = stats.total || 0;
+            document.getElementById('completedListening').textContent = stats.completed || 0;
+            document.getElementById('totalMinutes').textContent = stats.totalMinutes || 0;
+        }
+
+        async function showListeningDetail(id) {
             try {
                 const response = await fetch(`../backend/api/listening.php?id=${id}`);
                 const data = await response.json();
-
+                
                 if (data.success) {
-                    currentListening = data.listening;
+                    const listening = data.listening;
+                    currentListeningId = id;
                     
-                    document.getElementById('audioTitle').textContent = data.listening.title;
+                    const modal = document.getElementById('listeningModal');
+                    const detail = document.getElementById('listeningDetail');
                     
-                    // Set audio source (demo URL)
-                    const audioSource = document.getElementById('audioSource');
-                    audioSource.src = data.listening.audio_url || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
-                    document.getElementById('audioPlayer').load();
-
-                    // Set transcript
-                    document.getElementById('transcript').innerHTML = data.listening.transcript || 'Không có script';
-
-                    // Load questions
-                    loadQuestions(data.listening.questions);
-
-                    // Show player
-                    document.getElementById('listeningList').classList.add('hidden');
-                    document.getElementById('playerModal').classList.remove('hidden');
-                }
-            } catch (error) {
-                console.error('Error loading audio:', error);
-            }
-        }
-
-        function loadQuestions(questionsJson) {
-            try {
-                const questions = JSON.parse(questionsJson || '[]');
-                const container = document.getElementById('questionsList');
-
-                if (questions.length > 0) {
-                    container.innerHTML = questions.map((q, index) => `
-                        <div style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
-                            <p style="margin-bottom: 1rem;"><strong>Câu ${index + 1}:</strong> ${q.question}</p>
-                            ${q.options.map((opt, i) => `
-                                <label style="display: block; padding: 0.5rem; cursor: pointer; margin-bottom: 0.5rem;">
-                                    <input type="radio" name="question${index}" value="${i}" onchange="userAnswers[${index}] = ${i}">
-                                    ${opt}
-                                </label>
-                            `).join('')}
+                    // Tạo audio URL demo (thực tế sẽ từ database)
+                    const audioUrl = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+                    
+                    detail.innerHTML = `
+                        <h2 style="color: var(--primary); margin-bottom: 1rem;">${listening.title}</h2>
+                        <span class="listening-level">${listening.level}</span>
+                        
+                        <div class="audio-player">
+                            <div class="audio-controls">
+                                <button class="play-btn" id="playBtn" onclick="togglePlay()">▶️</button>
+                                <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+                                <div class="speed-control">
+                                    <button class="speed-btn active" onclick="changeSpeed(1)">1x</button>
+                                    <button class="speed-btn" onclick="changeSpeed(1.5)">1.5x</button>
+                                    <button class="speed-btn" onclick="changeSpeed(2)">2x</button>
+                                </div>
+                            </div>
+                            <div class="progress-bar-container" id="progressBar" onclick="seekAudio(event)">
+                                <div class="progress-bar-fill" id="progressFill"></div>
+                            </div>
+                            <audio id="audioPlayer" src="${audioUrl}" onloadedmetadata="updateDuration()" ontimeupdate="updateProgress()"></audio>
                         </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = '<p style="color: var(--text-gray);">Không có câu hỏi</p>';
+                        
+                        ${listening.transcript ? `
+                            <div class="transcript-box">
+                                <h3>📝 Transcript</h3>
+                                <p>${listening.transcript}</p>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="comprehension-section">
+                            <h3 style="color: var(--primary); margin-bottom: 1rem;">❓ Câu hỏi hiểu nghe</h3>
+                            <div id="questionsContainer"></div>
+                            <button onclick="checkAnswers()" class="btn-primary" style="margin-top: 1rem;">Kiểm tra đáp án</button>
+                        </div>
+                        
+                        <div style="margin-top: 2rem;">
+                            <button onclick="markListeningCompleted(${listening.id})" class="btn-outline">Đánh dấu đã hoàn thành</button>
+                        </div>
+                    `;
+                    
+                    modal.style.display = 'flex';
+                    loadQuestions();
                 }
             } catch (error) {
-                document.getElementById('questionsList').innerHTML = '<p style="color: var(--text-gray);">Không có câu hỏi</p>';
+                console.error('Error:', error);
             }
         }
 
-        function toggleTranscript() {
-            const transcript = document.getElementById('transcript');
-            const btn = document.getElementById('transcriptBtn');
+        function loadQuestions() {
+            const container = document.getElementById('questionsContainer');
+            const questions = [
+                {
+                    text: 'What is the main topic of the audio?',
+                    options: ['Education', 'Technology', 'Health', 'Travel'],
+                    correct: 0
+                },
+                {
+                    text: 'According to the speaker, what is important?',
+                    options: ['Money', 'Time', 'Health', 'Knowledge'],
+                    correct: 3
+                },
+                {
+                    text: 'When did the event happen?',
+                    options: ['Yesterday', 'Last week', 'Last month', 'Last year'],
+                    correct: 1
+                }
+            ];
             
-            if (transcript.classList.contains('hidden')) {
-                transcript.classList.remove('hidden');
-                btn.textContent = '📝 Ẩn Script';
-            } else {
-                transcript.classList.add('hidden');
-                btn.textContent = '📝 Hiện Script';
-            }
+            container.innerHTML = questions.map((q, qIndex) => `
+                <div class="question-item">
+                    <div class="question-text">${qIndex + 1}. ${q.text}</div>
+                    <div class="answer-options">
+                        ${q.options.map((opt, optIndex) => `
+                            <div class="answer-option" data-question="${qIndex}" data-answer="${optIndex}" onclick="selectAnswer(${qIndex}, ${optIndex})">
+                                ${String.fromCharCode(65 + optIndex)}. ${opt}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function submitAnswers() {
-            try {
-                const questions = JSON.parse(currentListening.questions || '[]');
-                let correct = 0;
+        function selectAnswer(qIndex, optIndex) {
+            const options = document.querySelectorAll(`[data-question="${qIndex}"]`);
+            options.forEach(opt => opt.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
 
-                questions.forEach((q, index) => {
-                    if (userAnswers[index] === q.answer) {
-                        correct++;
+        function checkAnswers() {
+            const correctAnswers = [0, 3, 1]; // Đáp án đúng
+            const questions = document.querySelectorAll('.question-item');
+            let score = 0;
+            
+            questions.forEach((q, qIndex) => {
+                const selected = q.querySelector('.answer-option.selected');
+                if (selected) {
+                    const answer = parseInt(selected.dataset.answer);
+                    if (answer === correctAnswers[qIndex]) {
+                        selected.classList.add('correct');
+                        score++;
+                    } else {
+                        selected.classList.add('wrong');
+                        // Hiện đáp án đúng
+                        q.querySelector(`[data-answer="${correctAnswers[qIndex]}"]`).classList.add('correct');
                     }
-                });
+                }
+            });
+            
+            const percentage = Math.round((score / correctAnswers.length) * 100);
+            showToast(`Bạn đã trả lời đúng ${score}/${correctAnswers.length} câu (${percentage}%)`, 
+                      percentage >= 70 ? 'success' : 'info');
+        }
 
-                const score = (correct / questions.length * 100).toFixed(1);
-                alert(`Bạn trả lời đúng ${correct}/${questions.length} câu (${score}%)`);
-
-                // Save progress
-                saveListeningProgress(score);
-            } catch (error) {
-                alert('Có lỗi xảy ra khi kiểm tra đáp án');
+        function togglePlay() {
+            const audio = document.getElementById('audioPlayer');
+            const playBtn = document.getElementById('playBtn');
+            
+            if (audio.paused) {
+                audio.play();
+                playBtn.textContent = '⏸️';
+            } else {
+                audio.pause();
+                playBtn.textContent = '▶️';
             }
         }
 
-        async function saveListeningProgress(score) {
+        function changeSpeed(speed) {
+            const audio = document.getElementById('audioPlayer');
+            audio.playbackRate = speed;
+            
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function updateDuration() {
+            const audio = document.getElementById('audioPlayer');
+            const duration = formatTime(audio.duration);
+            document.getElementById('timeDisplay').textContent = `0:00 / ${duration}`;
+        }
+
+        function updateProgress() {
+            const audio = document.getElementById('audioPlayer');
+            const progress = (audio.currentTime / audio.duration) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            const current = formatTime(audio.currentTime);
+            const duration = formatTime(audio.duration);
+            document.getElementById('timeDisplay').textContent = `${current} / ${duration}`;
+        }
+
+        function seekAudio(event) {
+            const audio = document.getElementById('audioPlayer');
+            const progressBar = document.getElementById('progressBar');
+            const clickX = event.offsetX;
+            const width = progressBar.offsetWidth;
+            const duration = audio.duration;
+            
+            audio.currentTime = (clickX / width) * duration;
+        }
+
+        async function markListeningCompleted(id) {
             try {
-                await fetch('../backend/api/listening.php', {
+                const formData = new FormData();
+                formData.append('action', 'mark_completed');
+                formData.append('userId', user.id);
+                formData.append('listeningId', id);
+                
+                const response = await fetch('../backend/api/listening.php', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        listening_id: currentListening.id,
-                        score: score,
-                        completed: true
-                    })
+                    body: formData
                 });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showToast('Đã đánh dấu hoàn thành!', 'success');
+                    loadListening();
+                }
             } catch (error) {
-                console.error('Error saving progress:', error);
+                console.error('Error:', error);
             }
         }
 
-        function closePlayer() {
-            document.getElementById('playerModal').classList.add('hidden');
-            document.getElementById('listeningList').classList.remove('hidden');
-            document.getElementById('audioPlayer').pause();
-            userAnswers = {};
+        // Close modal
+        document.querySelector('.close').onclick = function() {
+            const audio = document.getElementById('audioPlayer');
+            if (audio) audio.pause();
+            document.getElementById('listeningModal').style.display = 'none';
         }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('listeningModal');
+            if (event.target == modal) {
+                const audio = document.getElementById('audioPlayer');
+                if (audio) audio.pause();
+                modal.style.display = 'none';
+            }
+        }
+
+        // Event listeners
+        document.getElementById('searchBtn').addEventListener('click', loadListening);
+        document.getElementById('levelFilter').addEventListener('change', loadListening);
+
+        // Load initial data
+        loadListening();
     </script>
+    
 </body>
 </html>

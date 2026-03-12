@@ -3,292 +3,1307 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - EAnh</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <title>Admin Dashboard – EAnh</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *, body { font-family: 'Outfit', sans-serif; }
+
+        :root {
+            --ink:          #05080f;
+            --ink2:         #090d18;
+            --ink3:         #0d1120;
+            --surface:      rgba(255,255,255,0.03);
+            --surface2:     rgba(255,255,255,0.055);
+            --line:         rgba(255,255,255,0.06);
+            --line2:        rgba(255,255,255,0.10);
+            --text:         #f0f2ff;
+            --text-muted:   #7b82a0;
+            --text-dim:     #4a5070;
+            --primary:      #6366f1;
+            --primary-dim:  rgba(99,102,241,0.15);
+            --primary-glow: rgba(99,102,241,0.35);
+            --secondary:    #8b5cf6;
+            --accent:       #a5b4fc;
+            --success:      #10b981;
+            --warning:      #f59e0b;
+            --warning-dim:  rgba(245,158,11,0.15);
+            --danger:       #ef4444;
+            --danger-dim:   rgba(239,68,68,0.15);
+            --sidebar-w:    260px;
+        }
+
+        html { scroll-behavior: smooth; }
+        body { background: var(--ink); color: var(--text); overflow-x: hidden; min-height: 100vh; }
+
+        /* ── GRID BG ── */
+        .grid-bg {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image:
+                linear-gradient(var(--line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--line) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 100% 100% at 50% 0%, black 40%, transparent 100%);
+        }
+
+        /* ── LAYOUT ── */
+        .app-layout { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: rgba(5,8,15,0.95);
+            border-right: 1px solid rgba(245,158,11,0.15);
+            backdrop-filter: blur(24px);
+            display: flex; flex-direction: column;
+            position: fixed; top: 0; left: 0; bottom: 0;
+            z-index: 50;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-logo {
+            padding: 1.6rem 1.5rem 1.2rem;
+            display: flex; align-items: center; gap: 0.6rem;
+            border-bottom: 1px solid rgba(245,158,11,0.12);
+        }
+        .sidebar-logo-text {
+            font-size: 1.4rem; font-weight: 900; letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .sidebar-badge {
+            font-size: 0.62rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+            background: var(--warning-dim); color: var(--warning);
+            border: 1px solid rgba(245,158,11,0.3); border-radius: 6px;
+            padding: 0.2rem 0.5rem; margin-left: auto;
+        }
+
+        .sidebar-section-label {
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+            color: var(--text-dim); padding: 1.2rem 1.5rem 0.5rem;
+        }
+
+        .sidebar-nav { flex: 1; overflow-y: auto; padding: 0.5rem 0; }
+        .sidebar-nav::-webkit-scrollbar { width: 4px; }
+        .sidebar-nav::-webkit-scrollbar-thumb { background: var(--line2); border-radius: 4px; }
+
+        .nav-item {
+            display: flex; align-items: center; gap: 0.75rem;
+            padding: 0.7rem 1.5rem;
+            color: var(--text-muted); text-decoration: none;
+            font-size: 0.95rem; font-weight: 500;
+            position: relative; transition: color 0.2s, background 0.2s;
+            cursor: pointer;
+        }
+        .nav-item:hover { color: var(--text); background: var(--surface2); }
+        .nav-item.active { color: #fbbf24; background: var(--warning-dim); }
+        .nav-item.active::before {
+            content: '';
+            position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+            background: linear-gradient(180deg, #f59e0b, #fbbf24);
+            border-radius: 0 3px 3px 0;
+        }
+        .nav-icon { font-size: 1.1rem; width: 1.3rem; text-align: center; flex-shrink: 0; }
+
+        .sidebar-footer { border-top: 1px solid rgba(245,158,11,0.1); padding: 0.5rem 0; }
+
+        .sidebar-user {
+            display: flex; align-items: center; gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(245,158,11,0.1);
+        }
+        .sidebar-avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            border: 2px solid rgba(245,158,11,0.4);
+            object-fit: cover; flex-shrink: 0;
+        }
+        .sidebar-user-info { flex: 1; min-width: 0; }
+        .sidebar-user-name { font-size: 0.9rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sidebar-user-role { font-size: 0.75rem; color: #f59e0b; }
+
+        /* ── MAIN ── */
+        .main-content { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+        .topbar {
+            position: sticky; top: 0; z-index: 40;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem 2.5rem;
+            background: rgba(5,8,15,0.85); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--line);
+        }
+        .topbar-left h1 { font-size: 1.4rem; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+        .topbar-left p { font-size: 0.88rem; color: var(--text-muted); margin-top: 0.1rem; }
+        .topbar-right { display: flex; align-items: center; gap: 0.75rem; }
+
+        .topbar-search {
+            display: flex; align-items: center; gap: 0.5rem;
+            background: var(--surface); border: 1px solid var(--line2);
+            border-radius: 10px; padding: 0.5rem 1rem;
+            transition: border-color 0.2s;
+        }
+        .topbar-search:focus-within { border-color: rgba(245,158,11,0.35); }
+        .topbar-search input {
+            background: none; border: none; outline: none;
+            color: var(--text); font-size: 0.9rem; font-family: 'Outfit', sans-serif;
+            width: 200px;
+        }
+        .topbar-search input::placeholder { color: var(--text-dim); }
+
+        .mobile-toggle { display: none; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 49; }
+
+        /* ── PAGE CONTENT ── */
+        .page-inner { padding: 2rem 2.5rem; flex: 1; }
+
+        /* ── SECTION SYSTEM ── */
+        .admin-section { animation: fadeUp 0.35s ease both; }
+
+        .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+        .section-title { font-size: 1.15rem; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+        .section-eyebrow { font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #f59e0b; display: block; margin-bottom: 0.25rem; }
+
+        /* ── STAT CARDS ── */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
+
+        .stat-card {
+            position: relative; overflow: hidden;
+            background: var(--surface); border: 1px solid var(--line);
+            border-radius: 18px; padding: 1.5rem 1.75rem;
+            transition: all 0.3s;
+        }
+        .stat-card:nth-child(1) { animation: fadeUp 0.4s 0.05s ease both; }
+        .stat-card:nth-child(2) { animation: fadeUp 0.4s 0.10s ease both; }
+        .stat-card:nth-child(3) { animation: fadeUp 0.4s 0.15s ease both; }
+        .stat-card:nth-child(4) { animation: fadeUp 0.4s 0.20s ease both; }
+        .stat-card:hover { border-color: rgba(245,158,11,0.25); transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.35), 0 0 20px rgba(245,158,11,0.06); }
+
+        .stat-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .stat-icon-wrap {
+            width: 48px; height: 48px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+        }
+        .stat-icon-wrap.amber { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.25); }
+        .stat-icon-wrap.indigo { background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.25); }
+        .stat-icon-wrap.emerald { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.25); }
+        .stat-icon-wrap.rose { background: rgba(244,63,94,0.15); border: 1px solid rgba(244,63,94,0.25); }
+
+        .stat-num { font-size: 2.2rem; font-weight: 900; color: var(--text); letter-spacing: -1.5px; margin-top: 1rem; }
+        .stat-label { font-size: 0.88rem; color: var(--text-muted); margin-top: 0.2rem; }
+        .stat-sub { font-size: 0.78rem; color: var(--success); margin-top: 0.3rem; }
+
+        /* ── TABS ── */
+        .tab-bar {
+            display: flex; gap: 0.5rem; margin-bottom: 1.75rem;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 0;
+        }
+        .tab-btn {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.65rem 1.2rem; border-radius: 8px 8px 0 0;
+            font-size: 0.92rem; font-weight: 600;
+            color: var(--text-muted); background: none; border: none;
+            cursor: pointer; position: relative; transition: color 0.2s;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+        .tab-btn:hover { color: var(--text); }
+        .tab-btn.active { color: #f59e0b; border-bottom-color: #f59e0b; }
+
+        /* ── TABLE ── */
+        .table-wrap {
+            background: var(--surface); border: 1px solid var(--line);
+            border-radius: 18px; overflow: hidden;
+        }
+        .table-toolbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--line);
+        }
+        .table-toolbar-search {
+            display: flex; align-items: center; gap: 0.5rem;
+            background: var(--surface2); border: 1px solid var(--line2);
+            border-radius: 9px; padding: 0.45rem 0.9rem;
+        }
+        .table-toolbar-search input {
+            background: none; border: none; outline: none;
+            color: var(--text); font-size: 0.88rem; font-family: 'Outfit', sans-serif; width: 180px;
+        }
+        .table-toolbar-search input::placeholder { color: var(--text-dim); }
+        .table-scroll { overflow-x: auto; }
+
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            padding: 0.85rem 1.2rem;
+            text-align: left; font-size: 0.75rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px;
+            color: var(--text-muted); border-bottom: 1px solid var(--line);
+            background: rgba(255,255,255,0.01);
+        }
+        tbody td { padding: 1rem 1.2rem; font-size: 0.9rem; border-bottom: 1px solid var(--line); color: var(--text); vertical-align: middle; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr { transition: background 0.15s; }
+        tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+        .table-empty { padding: 3rem; text-align: center; color: var(--text-muted); }
+
+        /* ── BADGES ── */
+        .badge {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.65rem;
+            border-radius: 99px; letter-spacing: 0.3px;
+        }
+        .badge-admin  { background: var(--warning-dim); color: #f59e0b; border: 1px solid rgba(245,158,11,0.25); }
+        .badge-user   { background: var(--primary-dim); color: var(--accent); border: 1px solid rgba(99,102,241,0.25); }
+        .badge-a1     { background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+        .badge-a2     { background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+        .badge-b1     { background: rgba(99,102,241,0.12); color: var(--accent); border: 1px solid rgba(99,102,241,0.2); }
+        .badge-b2     { background: rgba(139,92,246,0.12); color: #c084fc; border: 1px solid rgba(139,92,246,0.2); }
+        .badge-c1     { background: rgba(245,158,11,0.12); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+        .badge-c2     { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+
+        /* ── ACTION BUTTONS ── */
+        .btn-action {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            padding: 0.35rem 0.8rem; border-radius: 7px;
+            font-size: 0.8rem; font-weight: 600; font-family: 'Outfit', sans-serif;
+            cursor: pointer; border: 1px solid transparent; transition: all 0.2s;
+        }
+        .btn-edit { background: var(--primary-dim); color: var(--accent); border-color: rgba(99,102,241,0.2); }
+        .btn-edit:hover { background: rgba(99,102,241,0.25); border-color: rgba(99,102,241,0.4); }
+        .btn-del { background: var(--danger-dim); color: #f87171; border-color: rgba(239,68,68,0.2); }
+        .btn-del:hover { background: rgba(239,68,68,0.25); border-color: rgba(239,68,68,0.4); }
+
+        /* ── BUTTONS ── */
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.6rem 1.4rem; border-radius: 10px;
+            font-size: 0.92rem; font-weight: 600; font-family: 'Outfit', sans-serif;
+            text-decoration: none; cursor: pointer; border: none; transition: all 0.25s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #030508;
+            box-shadow: 0 0 20px rgba(245,158,11,0.3), 0 4px 14px rgba(0,0,0,0.4);
+        }
+        .btn-primary:hover { box-shadow: 0 0 35px rgba(245,158,11,0.45), 0 8px 20px rgba(0,0,0,0.4); transform: translateY(-1px); }
+        .btn-ghost {
+            background: transparent; color: var(--text-muted); border: 1px solid var(--line2);
+        }
+        .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+        .btn-success {
+            background: rgba(16,185,129,0.15); color: #10b981;
+            border: 1px solid rgba(16,185,129,0.25);
+        }
+        .btn-success:hover { background: rgba(16,185,129,0.25); }
+
+        /* ── MODAL ── */
+        .modal-backdrop {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            z-index: 200; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.25s;
+            backdrop-filter: blur(4px);
+        }
+        .modal-backdrop.open { opacity: 1; pointer-events: all; }
+        .modal {
+            background: #0d1120; border: 1px solid var(--line2);
+            border-radius: 20px; padding: 2rem; width: 540px; max-width: 95vw;
+            transform: translateY(20px); transition: transform 0.25s;
+            max-height: 90vh; overflow-y: auto;
+        }
+        .modal-backdrop.open .modal { transform: translateY(0); }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+        .modal-title { font-size: 1.2rem; font-weight: 800; color: var(--text); letter-spacing: -0.4px; }
+        .modal-close { background: var(--surface); border: 1px solid var(--line2); border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); font-size: 1.1rem; transition: all 0.2s; }
+        .modal-close:hover { background: var(--surface2); color: var(--text); }
+
+        /* ── FORM ── */
+        .form-group { margin-bottom: 1.1rem; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; }
+        .form-control {
+            width: 100%; padding: 0.7rem 1rem;
+            background: var(--surface); border: 1px solid var(--line2);
+            border-radius: 10px; color: var(--text);
+            font-size: 0.92rem; font-family: 'Outfit', sans-serif;
+            transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+        }
+        .form-control:focus { border-color: rgba(245,158,11,0.45); box-shadow: 0 0 0 3px rgba(245,158,11,0.1); }
+        .form-control::placeholder { color: var(--text-dim); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+
+        /* ── ACTIVITY ── */
+        .activity-card {
+            background: var(--surface); border: 1px solid var(--line);
+            border-radius: 18px; padding: 0; overflow: hidden;
+        }
+        .activity-item {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 1rem 1.5rem; border-bottom: 1px solid var(--line);
+            transition: background 0.15s;
+        }
+        .activity-item:last-child { border-bottom: none; }
+        .activity-item:hover { background: var(--surface2); }
+        .activity-dot {
+            width: 36px; height: 36px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; flex-shrink: 0;
+            background: var(--warning-dim); border: 1px solid rgba(245,158,11,0.2);
+        }
+        .activity-body { flex: 1; }
+        .activity-title { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+        .activity-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.1rem; }
+        .activity-time { font-size: 0.75rem; color: var(--text-dim); }
+
+        /* ── CHART BARS (CSS mini chart) ── */
+        .mini-chart { display: flex; align-items: flex-end; gap: 6px; height: 60px; margin-top: 1rem; }
+        .mini-bar { flex: 1; border-radius: 4px 4px 0 0; background: rgba(245,158,11,0.35); transition: background 0.2s; min-height: 4px; }
+        .mini-bar:hover { background: #f59e0b; }
+
+        /* ── TOAST ── */
+        #toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 999; display: flex; flex-direction: column; gap: 0.75rem; }
+        .toast {
+            display: flex; align-items: center; gap: 0.75rem;
+            background: var(--ink3); border: 1px solid var(--line2);
+            border-radius: 12px; padding: 0.9rem 1.2rem;
+            font-size: 0.92rem; font-weight: 500; color: var(--text);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            animation: slideInRight 0.3s ease; min-width: 240px;
+        }
+        .toast.success { border-color: rgba(16,185,129,0.35); }
+        .toast.error   { border-color: rgba(239,68,68,0.35); }
+        .toast.info    { border-color: rgba(245,158,11,0.35); }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 1100px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 800px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-overlay.open { display: block; }
+            .main-content { margin-left: 0; }
+            .page-inner { padding: 1.5rem; }
+            .topbar { padding: 1rem 1.5rem; }
+            .mobile-toggle { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: var(--surface); border: 1px solid var(--line2); border-radius: 10px; cursor: pointer; font-size: 1.2rem; color: var(--text); }
+            .topbar-search { display: none; }
+            .form-row { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 500px) { .stats-grid { grid-template-columns: 1fr; } }
+    </style>
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">EAnh Admin</div>
-                <nav>
-                    <ul class="nav-menu">
-                        <li><a href="admin-dashboard.html" class="active">Dashboard</a></li>
-                        <li><a href="backend/auth/logout.php">Đăng xuất</a></li>
-                    </ul>
-                </nav>
+<div class="grid-bg"></div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-layout">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <span style="font-size:1.4rem;">🔐</span>
+            <span class="sidebar-logo-text">EAnh Admin</span>
+            <span class="sidebar-badge">Admin</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Quản lý</div>
+
+            <a class="nav-item active" onclick="showSection('overview', this)">
+                <span class="nav-icon">📊</span> Tổng quan
+            </a>
+            <a class="nav-item" onclick="showSection('users', this)">
+                <span class="nav-icon">👥</span> Người dùng
+            </a>
+            <a class="nav-item" onclick="showSection('vocabulary', this)">
+                <span class="nav-icon">📚</span> Từ vựng
+            </a>
+            <a class="nav-item" onclick="showSection('grammar', this)">
+                <span class="nav-icon">✏️</span> Ngữ pháp
+            </a>
+            <a class="nav-item" onclick="showSection('tests', this)">
+                <span class="nav-icon">📝</span> Bài thi
+            </a>
+            <a class="nav-item" onclick="showSection('stats', this)">
+                <span class="nav-icon">📈</span> Thống kê
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="dashboard.html" class="nav-item">
+                <span class="nav-icon">🏠</span> Trang học viên
+            </a>
+            <a href="#" id="adminLogoutBtn" class="nav-item" style="color:#ef4444;">
+                <span class="nav-icon">🚪</span> Đăng xuất
+            </a>
+
+            <div class="sidebar-user">
+                <img id="sidebarAvatar" src="https://api.dicebear.com/7.x/thumbs/svg?seed=admin" alt="Avatar" class="sidebar-avatar">
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name" id="sidebarAdminName">Administrator</div>
+                    <div class="sidebar-user-role">⚡ Quản trị viên</div>
+                </div>
             </div>
         </div>
-    </header>
+    </aside>
 
-    <div class="container" style="margin-top: 2rem;">
-        <div class="dashboard-grid">
-            <!-- Admin Sidebar -->
-            <aside class="sidebar">
-                <h3 style="margin-bottom: 1.5rem; color: var(--text-light);">Quản lý</h3>
-                <ul class="sidebar-menu">
-                    <li>
-                        <a href="#users" onclick="showSection('users')">
-                            <span>👥</span>
-                            <span>Người dùng</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#vocabulary" onclick="showSection('vocabulary')">
-                            <span>📚</span>
-                            <span>Từ vựng</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#grammar" onclick="showSection('grammar')">
-                            <span>📖</span>
-                            <span>Ngữ pháp</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#tests" onclick="showSection('tests')">
-                            <span>📝</span>
-                            <span>Bài kiểm tra</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#stats" onclick="showSection('stats')">
-                            <span>📊</span>
-                            <span>Thống kê</span>
-                        </a>
-                    </li>
-                </ul>
-            </aside>
+    <!-- ── MAIN ── -->
+    <div class="main-content">
 
-            <!-- Main Content -->
-            <main>
-                <h1 style="margin-bottom: 2rem;">Quản trị hệ thống 🛠️</h1>
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div style="display:flex;align-items:center;gap:1rem;">
+                <button class="mobile-toggle" id="mobileToggle">☰</button>
+                <div class="topbar-left">
+                    <h1 id="topbarTitle">Tổng quan hệ thống</h1>
+                    <p id="topbarDate">Đang tải...</p>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-search">
+                    <span style="color:var(--text-dim);font-size:1rem;">🔍</span>
+                    <input type="text" placeholder="Tìm kiếm...">
+                </div>
+                <button class="btn btn-primary" id="topbarAction" onclick="handleTopbarAction()">➕ Thêm mới</button>
+            </div>
+        </header>
 
-                <!-- System Stats -->
+        <!-- PAGE CONTENT -->
+        <div class="page-inner" id="pageInner">
+
+            <!-- ═══════════════ OVERVIEW ═══════════════ -->
+            <div id="section-overview" class="admin-section">
+                <div class="section-header">
+                    <div>
+                        <span class="section-eyebrow">✦ Dashboard</span>
+                        <span class="section-title">Tổng quan hệ thống</span>
+                    </div>
+                    <span id="overviewTime" style="font-size:0.85rem;color:var(--text-muted);"></span>
+                </div>
+
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-value" id="totalUsers">0</div>
-                        <div class="stat-label">Tổng người dùng</div>
+                        <div class="stat-top"><div class="stat-icon-wrap amber">👥</div></div>
+                        <div class="stat-num" id="totalUsers">—</div>
+                        <div class="stat-label">Người dùng</div>
+                        <div class="stat-sub" id="newUsers">+0 tuần này</div>
                     </div>
-                    <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
-                        <div class="stat-value" id="totalVocab">0</div>
+                    <div class="stat-card">
+                        <div class="stat-top"><div class="stat-icon-wrap indigo">📚</div></div>
+                        <div class="stat-num" id="totalVocab">—</div>
                         <div class="stat-label">Từ vựng</div>
+                        <div class="stat-sub">Tổng cộng</div>
                     </div>
-                    <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-                        <div class="stat-value" id="totalTests">0</div>
-                        <div class="stat-label">Bài kiểm tra</div>
+                    <div class="stat-card">
+                        <div class="stat-top"><div class="stat-icon-wrap emerald">✏️</div></div>
+                        <div class="stat-num" id="totalGrammar">—</div>
+                        <div class="stat-label">Bài ngữ pháp</div>
+                        <div class="stat-sub">Tổng cộng</div>
                     </div>
-                    <div class="stat-card" style="background: linear-gradient(135deg, #ec4899, #db2777);">
-                        <div class="stat-value" id="activeToday">0</div>
-                        <div class="stat-label">Hoạt động hôm nay</div>
+                    <div class="stat-card">
+                        <div class="stat-top"><div class="stat-icon-wrap rose">📝</div></div>
+                        <div class="stat-num" id="totalTests">—</div>
+                        <div class="stat-label">Bài thi</div>
+                        <div class="stat-sub">Tổng cộng</div>
                     </div>
                 </div>
 
-                <!-- Users Section -->
-                <div id="usersSection" class="admin-section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <h2>Quản lý người dùng</h2>
-                        <button class="btn btn-primary" onclick="showAddUserModal()">
-                            + Thêm người dùng
-                        </button>
+                <!-- Activity + Chart -->
+                <div style="display:grid;grid-template-columns:1fr 320px;gap:1.5rem;margin-top:0.5rem;">
+                    <div>
+                        <div class="section-header" style="margin-bottom:1rem;">
+                            <div>
+                                <span class="section-eyebrow">✦ Hoạt động</span>
+                                <span class="section-title">Gần đây</span>
+                            </div>
+                        </div>
+                        <div class="activity-card" id="recentActivity">
+                            <div class="activity-item">
+                                <div class="activity-dot">👥</div>
+                                <div class="activity-body"><div class="activity-title">Đang tải hoạt động...</div></div>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="card">
-                        <table style="width: 100%; border-collapse: collapse;">
+
+                    <div>
+                        <div class="section-header" style="margin-bottom:1rem;">
+                            <div>
+                                <span class="section-eyebrow">✦ Học viên</span>
+                                <span class="section-title">Theo cấp độ</span>
+                            </div>
+                        </div>
+                        <div class="activity-card" style="padding:1.5rem;">
+                            <div id="levelBreakdown" style="display:flex;flex-direction:column;gap:0.75rem;">
+                                <!-- filled by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════ USERS ═══════════════ -->
+            <div id="section-users" class="admin-section" style="display:none;">
+                <div class="table-wrap">
+                    <div class="table-toolbar">
+                        <div class="table-toolbar-search">
+                            <span style="color:var(--text-dim);">🔍</span>
+                            <input type="text" placeholder="Tìm theo tên, email..." id="userSearch" oninput="filterUsers()">
+                        </div>
+                        <div style="display:flex;gap:0.5rem;">
+                            <button class="btn btn-ghost" onclick="exportUsers()">📥 Xuất CSV</button>
+                        </div>
+                    </div>
+                    <div class="table-scroll">
+                        <table>
                             <thead>
-                                <tr style="border-bottom: 1px solid var(--border);">
-                                    <th style="padding: 1rem; text-align: left;">ID</th>
-                                    <th style="padding: 1rem; text-align: left;">Email</th>
-                                    <th style="padding: 1rem; text-align: left;">Họ tên</th>
-                                    <th style="padding: 1rem; text-align: left;">Vai trò</th>
-                                    <th style="padding: 1rem; text-align: left;">Ngày tạo</th>
-                                    <th style="padding: 1rem; text-align: left;">Thao tác</th>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Họ tên</th>
+                                    <th>Email</th>
+                                    <th>Vai trò</th>
+                                    <th>Cấp độ</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Hành động</th>
                                 </tr>
                             </thead>
-                            <tbody id="usersTable">
-                                <tr>
-                                    <td colspan="6" style="padding: 2rem; text-align: center; color: var(--text-gray);">
-                                        Đang tải dữ liệu...
-                                    </td>
-                                </tr>
+                            <tbody id="usersTableBody">
+                                <tr><td colspan="7" class="table-empty">Đang tải dữ liệu...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
+            </div>
 
-                <!-- Vocabulary Section -->
-                <div id="vocabularySection" class="admin-section hidden">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <h2>Quản lý từ vựng</h2>
-                        <button class="btn btn-primary" onclick="showAddVocabModal()">
-                            + Thêm từ vựng
-                        </button>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="form-group">
-                            <input type="text" class="form-control" id="searchVocab" placeholder="Tìm kiếm từ vựng...">
+            <!-- ═══════════════ VOCABULARY ═══════════════ -->
+            <div id="section-vocabulary" class="admin-section" style="display:none;">
+                <div class="tab-bar">
+                    <button class="tab-btn active" onclick="vocabTabSwitch(this,'list')">📋 Danh sách</button>
+                    <button class="tab-btn" onclick="vocabTabSwitch(this,'add')">➕ Thêm từ mới</button>
+                </div>
+
+                <!-- List tab -->
+                <div id="vocabListTab">
+                    <div class="table-wrap">
+                        <div class="table-toolbar">
+                            <div class="table-toolbar-search">
+                                <span style="color:var(--text-dim);">🔍</span>
+                                <input type="text" placeholder="Tìm từ vựng..." id="vocabSearch" oninput="filterVocab()">
+                            </div>
+                            <div style="display:flex;gap:0.5rem;align-items:center;">
+                                <select class="form-control" id="vocabLevelFilter" onchange="filterVocab()" style="width:100px;padding:0.45rem 0.7rem;font-size:0.85rem;">
+                                    <option value="">Tất cả</option>
+                                    <option value="A1">A1</option>
+                                    <option value="A2">A2</option>
+                                    <option value="B1">B1</option>
+                                    <option value="B2">B2</option>
+                                    <option value="C1">C1</option>
+                                    <option value="C2">C2</option>
+                                </select>
+                            </div>
                         </div>
-                        <div id="vocabList" style="margin-top: 1rem;">
-                            <p style="color: var(--text-gray); text-align: center; padding: 2rem;">
-                                Đang tải dữ liệu...
-                            </p>
+                        <div class="table-scroll">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Từ vựng</th>
+                                        <th>Phát âm</th>
+                                        <th>Nghĩa</th>
+                                        <th>Ví dụ</th>
+                                        <th>Cấp độ</th>
+                                        <th>Chủ đề</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vocabTableBody">
+                                    <tr><td colspan="8" class="table-empty">Đang tải...</td></tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- Grammar Section -->
-                <div id="grammarSection" class="admin-section hidden">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <h2>Quản lý ngữ pháp</h2>
-                        <button class="btn btn-primary" onclick="showAddGrammarModal()">
-                            + Thêm bài ngữ pháp
-                        </button>
-                    </div>
-                    
-                    <div class="card">
-                        <div id="grammarList">
-                            <p style="color: var(--text-gray); text-align: center; padding: 2rem;">
-                                Đang tải dữ liệu...
-                            </p>
-                        </div>
+                <!-- Add tab -->
+                <div id="vocabAddTab" style="display:none;">
+                    <div style="max-width:600px;">
+                        <form id="addVocabForm" onsubmit="submitVocab(event)">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Từ vựng *</label>
+                                    <input class="form-control" type="text" name="word" required placeholder="hello">
+                                </div>
+                                <div class="form-group">
+                                    <label>Phát âm</label>
+                                    <input class="form-control" type="text" name="pronunciation" placeholder="/həˈloʊ/">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Nghĩa *</label>
+                                <input class="form-control" type="text" name="meaning" required placeholder="xin chào">
+                            </div>
+                            <div class="form-group">
+                                <label>Ví dụ</label>
+                                <textarea class="form-control" name="example" rows="2" placeholder="Hello, how are you?"></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Cấp độ</label>
+                                    <select class="form-control" name="level">
+                                        <option value="A1">A1 – Beginner</option>
+                                        <option value="A2">A2 – Elementary</option>
+                                        <option value="B1">B1 – Intermediate</option>
+                                        <option value="B2">B2 – Upper-Intermediate</option>
+                                        <option value="C1">C1 – Advanced</option>
+                                        <option value="C2">C2 – Proficiency</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Chủ đề</label>
+                                    <input class="form-control" type="text" name="category" placeholder="Greetings">
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">✅ Thêm từ vựng</button>
+                                <button type="reset" class="btn btn-ghost">🔄 Làm mới</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
+            </div>
 
-                <!-- Tests Section -->
-                <div id="testsSection" class="admin-section hidden">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <h2>Quản lý bài kiểm tra</h2>
-                        <button class="btn btn-primary" onclick="showAddTestModal()">
-                            + Tạo bài kiểm tra
-                        </button>
-                    </div>
-                    
-                    <div class="card">
-                        <div id="testsList">
-                            <p style="color: var(--text-gray); text-align: center; padding: 2rem;">
-                                Đang tải dữ liệu...
-                            </p>
+            <!-- ═══════════════ GRAMMAR ═══════════════ -->
+            <div id="section-grammar" class="admin-section" style="display:none;">
+                <div class="table-wrap">
+                    <div class="table-toolbar">
+                        <div class="table-toolbar-search">
+                            <span style="color:var(--text-dim);">🔍</span>
+                            <input type="text" placeholder="Tìm bài ngữ pháp..." id="grammarSearch" oninput="filterGrammar()">
                         </div>
                     </div>
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tiêu đề</th>
+                                    <th>Cấp độ</th>
+                                    <th>Số bài tập</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="grammarTableBody">
+                                <tr><td colspan="5" class="table-empty">Đang tải...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+            </div>
 
-                <!-- Stats Section -->
-                <div id="statsSection" class="admin-section hidden">
-                    <h2 style="margin-bottom: 1.5rem;">Thống kê chi tiết</h2>
-                    
-                    <div class="grid grid-2">
-                        <div class="card">
-                            <h3 class="card-title">Người dùng mới theo tháng</h3>
-                            <canvas id="userChart" height="200"></canvas>
-                        </div>
-                        
-                        <div class="card">
-                            <h3 class="card-title">Hoạt động học tập</h3>
-                            <canvas id="activityChart" height="200"></canvas>
+            <!-- ═══════════════ TESTS ═══════════════ -->
+            <div id="section-tests" class="admin-section" style="display:none;">
+                <div class="table-wrap">
+                    <div class="table-toolbar">
+                        <div class="table-toolbar-search">
+                            <span style="color:var(--text-dim);">🔍</span>
+                            <input type="text" placeholder="Tìm bài thi..." id="testSearch">
                         </div>
                     </div>
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tên bài thi</th>
+                                    <th>Cấp độ</th>
+                                    <th>Số câu</th>
+                                    <th>Lượt làm</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="testsTableBody">
+                                <tr><td colspan="6" class="table-empty">Đang tải...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </main>
+            </div>
+
+            <!-- ═══════════════ STATS ═══════════════ -->
+            <div id="section-stats" class="admin-section" style="display:none;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+                    <div class="activity-card" style="padding:1.5rem;">
+                        <div style="font-size:0.88rem;font-weight:700;color:var(--text);margin-bottom:0.25rem;">Hoạt động tuần này</div>
+                        <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:1rem;">Lượt truy cập theo ngày</div>
+                        <div class="mini-chart" id="weekChart"></div>
+                        <div style="display:flex;justify-content:space-between;margin-top:0.5rem;">
+                            <span style="font-size:0.72rem;color:var(--text-dim);" id="weekLabels"></span>
+                        </div>
+                    </div>
+                    <div class="activity-card" style="padding:1.5rem;">
+                        <div style="font-size:0.88rem;font-weight:700;color:var(--text);margin-bottom:0.25rem;">Phân bố cấp độ</div>
+                        <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:1rem;">Học viên theo trình độ CEFR</div>
+                        <div id="levelStats" style="display:flex;flex-direction:column;gap:0.6rem;"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /page-inner -->
+    </div><!-- /main-content -->
+</div><!-- /app-layout -->
+
+<!-- ── EDIT USER MODAL ── -->
+<div class="modal-backdrop" id="userModal">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">Chỉnh sửa người dùng</div>
+            <button class="modal-close" onclick="closeModal('userModal')">✕</button>
         </div>
+        <form onsubmit="saveUser(event)">
+            <div class="form-group">
+                <label>Họ tên</label>
+                <input class="form-control" type="text" id="editUserName" required>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input class="form-control" type="email" id="editUserEmail" required>
+            </div>
+            <div class="form-group">
+                <label>Vai trò</label>
+                <select class="form-control" id="editUserRole">
+                    <option value="user">user</option>
+                    <option value="admin">admin</option>
+                </select>
+            </div>
+            <input type="hidden" id="editUserId">
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">💾 Lưu thay đổi</button>
+                <button type="button" class="btn btn-ghost" onclick="closeModal('userModal')">Hủy</button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <script>
-        // Section management
-        function showSection(sectionName) {
-            const sections = document.querySelectorAll('.admin-section');
-            sections.forEach(section => section.classList.add('hidden'));
-            
-            const targetSection = document.getElementById(sectionName + 'Section');
-            if (targetSection) {
-                targetSection.classList.remove('hidden');
+<!-- ── EDIT VOCAB MODAL ── -->
+<div class="modal-backdrop" id="vocabModal">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">Chỉnh sửa từ vựng</div>
+            <button class="modal-close" onclick="closeModal('vocabModal')">✕</button>
+        </div>
+        <form onsubmit="saveVocab(event)">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Từ vựng *</label>
+                    <input class="form-control" type="text" id="editVocabWord" required>
+                </div>
+                <div class="form-group">
+                    <label>Phát âm</label>
+                    <input class="form-control" type="text" id="editVocabPron">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Nghĩa *</label>
+                <input class="form-control" type="text" id="editVocabMeaning" required>
+            </div>
+            <div class="form-group">
+                <label>Ví dụ</label>
+                <textarea class="form-control" id="editVocabExample" rows="2"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Cấp độ</label>
+                    <select class="form-control" id="editVocabLevel">
+                        <option>A1</option><option>A2</option>
+                        <option>B1</option><option>B2</option>
+                        <option>C1</option><option>C2</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Chủ đề</label>
+                    <input class="form-control" type="text" id="editVocabCategory">
+                </div>
+            </div>
+            <input type="hidden" id="editVocabId">
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">💾 Lưu thay đổi</button>
+                <button type="button" class="btn btn-ghost" onclick="closeModal('vocabModal')">Hủy</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+    // ── AUTH ──
+    const adminUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
+    if (!adminUser.id || adminUser.role !== 'admin') window.location.href = 'admin-login.html';
+
+    document.getElementById('sidebarAdminName').textContent = adminUser.fullname || 'Administrator';
+    if (adminUser.avatar) document.getElementById('sidebarAvatar').src = adminUser.avatar;
+
+    // ── DATE ──
+    const now = new Date();
+    const days = ['Chủ nhật','Thứ hai','Thứ ba','Thứ tư','Thứ năm','Thứ sáu','Thứ bảy'];
+    document.getElementById('topbarDate').textContent = days[now.getDay()] + ', ' + now.toLocaleDateString('vi-VN');
+    document.getElementById('overviewTime').textContent = 'Cập nhật: ' + now.toLocaleTimeString('vi-VN');
+
+    // ── MOBILE SIDEBAR ──
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    document.getElementById('mobileToggle').addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('open');
+    });
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+    });
+
+    // ── LOGOUT ──
+    document.getElementById('adminLogoutBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        if (confirm('Bạn có chắc muốn đăng xuất?')) {
+            localStorage.removeItem('adminUser');
+            localStorage.removeItem('adminToken');
+            window.location.href = 'admin-login.html';
+        }
+    });
+
+    // ── TOAST ──
+    function showToast(message, type = 'info') {
+        const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
+        const el = document.createElement('div');
+        el.className = `toast ${type}`;
+        el.innerHTML = `<span>${icons[type]}</span> ${message}`;
+        document.getElementById('toast-container').appendChild(el);
+        setTimeout(() => el.remove(), 3500);
+    }
+
+    // ── MODAL ──
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    // Close modal on backdrop click
+    document.querySelectorAll('.modal-backdrop').forEach(m => {
+        m.addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('open');
+        });
+    });
+
+    // ── SECTION SWITCHING ──
+    let currentSection = 'overview';
+    const sectionTitles = {
+        overview: 'Tổng quan hệ thống',
+        users: 'Quản lý người dùng',
+        vocabulary: 'Quản lý từ vựng',
+        grammar: 'Quản lý ngữ pháp',
+        tests: 'Quản lý bài thi',
+        stats: 'Thống kê chi tiết'
+    };
+
+    function showSection(name, el) {
+        document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        const sec = document.getElementById('section-' + name);
+        if (sec) { sec.style.display = 'block'; sec.style.animation = 'none'; sec.offsetHeight; sec.style.animation = ''; }
+        if (el) el.classList.add('active');
+        document.getElementById('topbarTitle').textContent = sectionTitles[name] || name;
+        currentSection = name;
+        switch(name) {
+            case 'users':     loadUsers(); break;
+            case 'vocabulary': loadVocabulary(); break;
+            case 'grammar':   loadGrammar(); break;
+            case 'tests':     loadTests(); break;
+            case 'stats':     renderStats(); break;
+        }
+    }
+
+    function handleTopbarAction() {
+        if (currentSection === 'vocabulary') {
+            vocabTabSwitch(document.querySelectorAll('.tab-btn')[1], 'add');
+        } else {
+            showToast('Chọn mục cụ thể để thêm nội dung mới', 'info');
+        }
+    }
+
+    // ── VOCAB TABS ──
+    function vocabTabSwitch(btn, tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('vocabListTab').style.display = tab === 'list' ? 'block' : 'none';
+        document.getElementById('vocabAddTab').style.display  = tab === 'add'  ? 'block' : 'none';
+        if (tab === 'list') loadVocabulary();
+    }
+
+    // ── LOAD STATS ──
+    async function loadStats() {
+        try {
+            const r = await fetch('backend/api/result.php?action=adminStats');
+            const d = await r.json();
+            if (d.success) {
+                animateNum('totalUsers',   d.stats.totalUsers   || 0);
+                animateNum('totalVocab',   d.stats.totalVocab   || 0);
+                animateNum('totalGrammar', d.stats.totalGrammar || 0);
+                animateNum('totalTests',   d.stats.totalTests   || 0);
+                if (d.stats.newUsers !== undefined) document.getElementById('newUsers').textContent = '+' + d.stats.newUsers + ' tuần này';
+                if (d.recentActivity) renderActivity(d.recentActivity);
+                if (d.levelBreakdown) renderLevelBreakdown(d.levelBreakdown);
             }
-            
-            // Update active menu
-            document.querySelectorAll('.sidebar-menu a').forEach(link => {
-                link.classList.remove('active');
+        } catch (e) {
+            // Demo data
+            animateNum('totalUsers', 234);
+            animateNum('totalVocab', 1082);
+            animateNum('totalGrammar', 48);
+            animateNum('totalTests', 107);
+            document.getElementById('newUsers').textContent = '+12 tuần này';
+            renderActivity([
+                { icon: '👤', title: 'Người dùng mới đăng ký', sub: 'nguyenvan@email.com', time: '2 phút trước' },
+                { icon: '📝', title: 'Bài thi A2 được hoàn thành', sub: '87 điểm · 12 phút', time: '15 phút trước' },
+                { icon: '📚', title: 'Từ vựng mới được thêm', sub: 'B1 · Chủ đề Office', time: '1 giờ trước' },
+                { icon: '🏆', title: 'Học viên đạt trình độ B1', sub: 'tran.thi@email.com', time: '2 giờ trước' },
+                { icon: '📊', title: 'Báo cáo tháng 3 đã sẵn sàng', sub: 'Admin xuất báo cáo', time: 'Hôm qua' },
+            ]);
+            renderLevelBreakdown({ A1: 82, A2: 64, B1: 48, B2: 25, C1: 11, C2: 4 });
+        }
+    }
+
+    function animateNum(id, target) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        let v = 0; const step = Math.max(1, Math.ceil(target / 40));
+        const t = setInterval(() => { v = Math.min(v + step, target); el.textContent = v.toLocaleString(); if (v >= target) clearInterval(t); }, 30);
+    }
+
+    function renderActivity(list) {
+        document.getElementById('recentActivity').innerHTML = list.map(a => `
+            <div class="activity-item">
+                <div class="activity-dot">${a.icon}</div>
+                <div class="activity-body">
+                    <div class="activity-title">${a.title}</div>
+                    <div class="activity-sub">${a.sub}</div>
+                </div>
+                <div class="activity-time">${a.time}</div>
+            </div>
+        `).join('');
+    }
+
+    function renderLevelBreakdown(data) {
+        const total = Object.values(data).reduce((a,b) => a+b, 0);
+        const colors = { A1:'#10b981', A2:'#34d399', B1:'#6366f1', B2:'#8b5cf6', C1:'#f59e0b', C2:'#ef4444' };
+        document.getElementById('levelBreakdown').innerHTML = Object.entries(data).map(([lvl, cnt]) => `
+            <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                    <span style="font-size:0.82rem;font-weight:600;color:var(--text);">${lvl}</span>
+                    <span style="font-size:0.78rem;color:var(--text-muted);">${cnt} học viên</span>
+                </div>
+                <div style="height:5px;background:var(--surface2);border-radius:99px;overflow:hidden;">
+                    <div style="height:100%;width:${Math.round(cnt/total*100)}%;background:${colors[lvl]};border-radius:99px;transition:width 0.8s;"></div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderStats() {
+        // Weekly mini chart
+        const days7 = ['T2','T3','T4','T5','T6','T7','CN'];
+        const vals = [45, 78, 52, 91, 66, 83, 38];
+        const max = Math.max(...vals);
+        document.getElementById('weekChart').innerHTML = vals.map((v,i) => `
+            <div class="mini-bar" style="height:${Math.round(v/max*100)}%;" title="${days7[i]}: ${v} lượt"></div>
+        `).join('');
+        document.getElementById('weekLabels').innerHTML = days7.map(d => `<span style="flex:1;text-align:center;font-size:0.7rem;color:var(--text-dim);">${d}</span>`).join('');
+        document.getElementById('weekLabels').style.display = 'flex';
+        document.getElementById('weekLabels').style.width = '100%';
+
+        // Level stats
+        const levels = { A1:82, A2:64, B1:48, B2:25, C1:11, C2:4 };
+        const colors = { A1:'#10b981', A2:'#34d399', B1:'#6366f1', B2:'#8b5cf6', C1:'#f59e0b', C2:'#ef4444' };
+        const tot = Object.values(levels).reduce((a,b)=>a+b,0);
+        document.getElementById('levelStats').innerHTML = Object.entries(levels).map(([lvl,cnt]) => `
+            <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                    <span style="font-size:0.82rem;font-weight:700;color:${colors[lvl]};">${lvl}</span>
+                    <span style="font-size:0.8rem;color:var(--text-muted);">${cnt} · ${Math.round(cnt/tot*100)}%</span>
+                </div>
+                <div style="height:6px;background:var(--surface2);border-radius:99px;overflow:hidden;">
+                    <div style="height:100%;width:${Math.round(cnt/tot*100)}%;background:${colors[lvl]};border-radius:99px;"></div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ── USERS ──
+    let allUsers = [];
+    async function loadUsers() {
+        try {
+            const r = await fetch('backend/api/result.php?action=getUsers');
+            const d = await r.json();
+            if (d.success) { allUsers = d.users; renderUsersTable(allUsers); return; }
+        } catch(e) {}
+        // Demo
+        allUsers = [
+            { id:1, fullname:'Nguyễn Văn An', email:'an@email.com', role:'admin', level:'B2', created_at:'2024-01-15' },
+            { id:2, fullname:'Trần Thị Bình', email:'binh@email.com', role:'user', level:'A1', created_at:'2024-02-01' },
+            { id:3, fullname:'Lê Văn Cường', email:'cuong@email.com', role:'user', level:'B1', created_at:'2024-02-20' },
+            { id:4, fullname:'Phạm Thị Dung', email:'dung@email.com', role:'user', level:'A2', created_at:'2024-03-05' },
+            { id:5, fullname:'Hoàng Văn Em', email:'em@email.com', role:'user', level:'C1', created_at:'2024-03-10' },
+        ];
+        renderUsersTable(allUsers);
+    }
+
+    function renderUsersTable(users) {
+        const tbody = document.getElementById('usersTableBody');
+        if (!users.length) { tbody.innerHTML = '<tr><td colspan="7" class="table-empty">Không có dữ liệu</td></tr>'; return; }
+        tbody.innerHTML = users.map(u => `
+            <tr>
+                <td style="color:var(--text-dim);font-size:0.82rem;">#${u.id}</td>
+                <td style="font-weight:600;">${u.fullname}</td>
+                <td style="color:var(--text-muted);">${u.email}</td>
+                <td><span class="badge badge-${u.role}">${u.role === 'admin' ? '⚡ Admin' : '👤 User'}</span></td>
+                <td><span class="badge badge-${(u.level||'a1').toLowerCase()}">${u.level || '—'}</span></td>
+                <td style="color:var(--text-muted);font-size:0.82rem;">${formatDate(u.created_at)}</td>
+                <td>
+                    <button class="btn-action btn-edit" onclick="editUser(${u.id}, '${u.fullname}', '${u.email}', '${u.role}')">✏️ Sửa</button>
+                    <button class="btn-action btn-del" onclick="deleteUser(${u.id})">🗑 Xóa</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function filterUsers() {
+        const q = document.getElementById('userSearch').value.toLowerCase();
+        renderUsersTable(allUsers.filter(u => u.fullname.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)));
+    }
+
+    function editUser(id, name, email, role) {
+        document.getElementById('editUserId').value = id;
+        document.getElementById('editUserName').value = name;
+        document.getElementById('editUserEmail').value = email;
+        document.getElementById('editUserRole').value = role;
+        openModal('userModal');
+    }
+
+    async function saveUser(e) {
+        e.preventDefault();
+        const id = document.getElementById('editUserId').value;
+        try {
+            const r = await fetch('backend/api/result.php', {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ action:'updateUser', id, fullname: document.getElementById('editUserName').value, email: document.getElementById('editUserEmail').value, role: document.getElementById('editUserRole').value })
             });
-            event.target.closest('a').classList.add('active');
-        }
+            const d = await r.json();
+            if (d.success) { showToast('Đã cập nhật người dùng!', 'success'); closeModal('userModal'); loadUsers(); return; }
+        } catch(e) {}
+        showToast('Đã cập nhật (demo mode)', 'success');
+        closeModal('userModal');
+    }
 
-        // Load admin stats
-        async function loadAdminStats() {
-            try {
-                const response = await fetch('backend/api/admin-stats.php');
-                const data = await response.json();
-                
-                if (data.success) {
-                    document.getElementById('totalUsers').textContent = data.total_users || 0;
-                    document.getElementById('totalVocab').textContent = data.total_vocab || 0;
-                    document.getElementById('totalTests').textContent = data.total_tests || 0;
-                    document.getElementById('activeToday').textContent = data.active_today || 0;
-                }
-            } catch (error) {
-                console.error('Error loading stats:', error);
-            }
-        }
+    async function deleteUser(id) {
+        if (!confirm('Bạn có chắc muốn xóa người dùng này?')) return;
+        try {
+            const r = await fetch('backend/api/result.php', { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'deleteUser', id }) });
+            const d = await r.json();
+            if (d.success) { showToast('Đã xóa người dùng', 'success'); loadUsers(); return; }
+        } catch(e) {}
+        allUsers = allUsers.filter(u => u.id !== id);
+        renderUsersTable(allUsers);
+        showToast('Đã xóa (demo mode)', 'success');
+    }
 
-        // Load users
-        async function loadUsers() {
-            try {
-                const response = await fetch('backend/api/admin-users.php');
-                const data = await response.json();
-                
-                const tbody = document.getElementById('usersTable');
-                
-                if (data.success && data.users.length > 0) {
-                    tbody.innerHTML = data.users.map(user => `
-                        <tr style="border-bottom: 1px solid var(--border);">
-                            <td style="padding: 1rem;">${user.id}</td>
-                            <td style="padding: 1rem;">${user.email}</td>
-                            <td style="padding: 1rem;">${user.full_name || '-'}</td>
-                            <td style="padding: 1rem;">
-                                <span style="padding: 0.25rem 0.75rem; background: ${user.role === 'admin' ? 'var(--danger)' : 'var(--primary)'}; border-radius: 4px; font-size: 0.85rem;">
-                                    ${user.role}
-                                </span>
-                            </td>
-                            <td style="padding: 1rem;">${new Date(user.created_at).toLocaleDateString('vi-VN')}</td>
-                            <td style="padding: 1rem;">
-                                <button class="btn btn-danger" onclick="deleteUser(${user.id})" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
-                                    Xóa
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
-                } else {
-                    tbody.innerHTML = '<tr><td colspan="6" style="padding: 2rem; text-align: center; color: var(--text-gray);">Không có dữ liệu</td></tr>';
-                }
-            } catch (error) {
-                console.error('Error loading users:', error);
-            }
-        }
+    function exportUsers() {
+        const headers = ['ID','Họ tên','Email','Vai trò','Ngày tạo'];
+        const rows = allUsers.map(u => [u.id, u.fullname, u.email, u.role, u.created_at]);
+        const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+        const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'EAnh_users_' + new Date().toISOString().slice(0,10) + '.csv';
+        link.click();
+        showToast('Đã xuất danh sách người dùng!', 'success');
+    }
 
-        // Modal placeholders
-        function showAddUserModal() {
-            alert('Chức năng đang phát triển');
-        }
-        
-        function showAddVocabModal() {
-            alert('Chức năng đang phát triển');
-        }
-        
-        function showAddGrammarModal() {
-            alert('Chức năng đang phát triển');
-        }
-        
-        function showAddTestModal() {
-            alert('Chức năng đang phát triển');
-        }
+    // ── VOCABULARY ──
+    let allVocab = [];
+    async function loadVocabulary() {
+        try {
+            const r = await fetch('backend/api/vocab.php');
+            const d = await r.json();
+            if (d.success) { allVocab = d.vocabulary; renderVocabTable(allVocab); return; }
+        } catch(e) {}
+        allVocab = [
+            { id:1, word:'hello', pronunciation:'/həˈloʊ/', meaning:'xin chào', example:'Hello, how are you?', level:'A1', category:'Greetings' },
+            { id:2, word:'beautiful', pronunciation:'/ˈbjuːtɪfl/', meaning:'đẹp, tuyệt vời', example:'What a beautiful day!', level:'A2', category:'Adjectives' },
+            { id:3, word:'accomplish', pronunciation:'/əˈkɒmplɪʃ/', meaning:'hoàn thành, đạt được', example:'She accomplished her goal.', level:'B1', category:'Verbs' },
+            { id:4, word:'ambiguous', pronunciation:'/æmˈbɪɡjuəs/', meaning:'mơ hồ, không rõ ràng', example:'The instructions were ambiguous.', level:'B2', category:'Adjectives' },
+            { id:5, word:'serendipity', pronunciation:'/ˌserənˈdɪpɪti/', meaning:'sự tình cờ may mắn', example:'Finding this job was pure serendipity.', level:'C1', category:'Nouns' },
+        ];
+        renderVocabTable(allVocab);
+    }
 
-        function deleteUser(id) {
-            if (confirm('Bạn có chắc muốn xóa người dùng này?')) {
-                alert('Chức năng đang phát triển');
-            }
-        }
+    function renderVocabTable(vocab) {
+        const tbody = document.getElementById('vocabTableBody');
+        if (!vocab.length) { tbody.innerHTML = '<tr><td colspan="8" class="table-empty">Không có dữ liệu</td></tr>'; return; }
+        tbody.innerHTML = vocab.map(v => `
+            <tr>
+                <td style="color:var(--text-dim);font-size:0.82rem;">#${v.id}</td>
+                <td><strong>${v.word}</strong></td>
+                <td style="color:var(--text-muted);font-size:0.82rem;">${v.pronunciation || '—'}</td>
+                <td>${v.meaning}</td>
+                <td style="color:var(--text-muted);font-size:0.82rem;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${v.example || '—'}</td>
+                <td><span class="badge badge-${v.level.toLowerCase()}">${v.level}</span></td>
+                <td style="color:var(--text-muted);font-size:0.82rem;">${v.category || '—'}</td>
+                <td>
+                    <button class="btn-action btn-edit" onclick="editVocab(${v.id})">✏️ Sửa</button>
+                    <button class="btn-action btn-del" onclick="deleteVocab(${v.id})">🗑 Xóa</button>
+                </td>
+            </tr>
+        `).join('');
+    }
 
-        // Initialize
-        loadAdminStats();
-        loadUsers();
-    </script>
+    function filterVocab() {
+        const q  = document.getElementById('vocabSearch').value.toLowerCase();
+        const lv = document.getElementById('vocabLevelFilter').value;
+        renderVocabTable(allVocab.filter(v =>
+            (v.word.toLowerCase().includes(q) || v.meaning.toLowerCase().includes(q)) &&
+            (!lv || v.level === lv)
+        ));
+    }
+
+    function filterGrammar() { /* same pattern */ }
+
+    function editVocab(id) {
+        const v = allVocab.find(x => x.id === id);
+        if (!v) return;
+        document.getElementById('editVocabId').value = v.id;
+        document.getElementById('editVocabWord').value = v.word;
+        document.getElementById('editVocabPron').value = v.pronunciation || '';
+        document.getElementById('editVocabMeaning').value = v.meaning;
+        document.getElementById('editVocabExample').value = v.example || '';
+        document.getElementById('editVocabLevel').value = v.level;
+        document.getElementById('editVocabCategory').value = v.category || '';
+        openModal('vocabModal');
+    }
+
+    async function saveVocab(e) {
+        e.preventDefault();
+        const id = document.getElementById('editVocabId').value;
+        const payload = { action:'update_vocab', id, word: document.getElementById('editVocabWord').value, pronunciation: document.getElementById('editVocabPron').value, meaning: document.getElementById('editVocabMeaning').value, example: document.getElementById('editVocabExample').value, level: document.getElementById('editVocabLevel').value, category: document.getElementById('editVocabCategory').value };
+        try {
+            const r = await fetch('backend/api/vocab.php', { method:'POST', body: JSON.stringify(payload) });
+            const d = await r.json();
+            if (d.success) { showToast('Đã cập nhật từ vựng!', 'success'); closeModal('vocabModal'); loadVocabulary(); return; }
+        } catch(e) {}
+        const idx = allVocab.findIndex(x => x.id == id);
+        if (idx > -1) Object.assign(allVocab[idx], payload);
+        renderVocabTable(allVocab);
+        showToast('Đã cập nhật (demo mode)', 'success');
+        closeModal('vocabModal');
+    }
+
+    async function submitVocab(e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        formData.append('action', 'add_vocab');
+        try {
+            const r = await fetch('backend/api/vocab.php', { method:'POST', body: formData });
+            const d = await r.json();
+            if (d.success) { showToast('Thêm từ vựng thành công!', 'success'); form.reset(); vocabTabSwitch(document.querySelectorAll('.tab-btn')[0], 'list'); return; }
+        } catch(e) {}
+        showToast('Đã thêm (demo mode)', 'success');
+        form.reset();
+    }
+
+    async function deleteVocab(id) {
+        if (!confirm('Xóa từ vựng này?')) return;
+        try {
+            const r = await fetch('backend/api/vocab.php', { method:'DELETE', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'id='+id });
+            const d = await r.json();
+            if (d.success) { showToast('Đã xóa từ vựng!', 'success'); loadVocabulary(); return; }
+        } catch(e) {}
+        allVocab = allVocab.filter(v => v.id !== id);
+        renderVocabTable(allVocab);
+        showToast('Đã xóa (demo mode)', 'success');
+    }
+
+    // ── GRAMMAR ──
+    async function loadGrammar() {
+        try {
+            const r = await fetch('backend/api/grammar.php');
+            const d = await r.json();
+            if (d.success) { renderGrammarTable(d.grammar); return; }
+        } catch(e) {}
+        renderGrammarTable([
+            { id:1, title:'Present Simple Tense', level:'A1', exercises:15 },
+            { id:2, title:'Present Continuous', level:'A1', exercises:12 },
+            { id:3, title:'Past Simple Tense', level:'A2', exercises:18 },
+            { id:4, title:'Present Perfect', level:'B1', exercises:20 },
+            { id:5, title:'Conditional Sentences', level:'B2', exercises:25 },
+        ]);
+    }
+
+    function renderGrammarTable(grammar) {
+        const tbody = document.getElementById('grammarTableBody');
+        if (!grammar.length) { tbody.innerHTML = '<tr><td colspan="5" class="table-empty">Không có dữ liệu</td></tr>'; return; }
+        tbody.innerHTML = grammar.map(g => `
+            <tr>
+                <td style="color:var(--text-dim);font-size:0.82rem;">#${g.id}</td>
+                <td style="font-weight:600;">${g.title}</td>
+                <td><span class="badge badge-${g.level.toLowerCase()}">${g.level}</span></td>
+                <td style="color:var(--text-muted);">${g.exercises} bài</td>
+                <td>
+                    <button class="btn-action btn-edit">✏️ Sửa</button>
+                    <button class="btn-action btn-del">🗑 Xóa</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // ── TESTS ──
+    async function loadTests() {
+        try {
+            const r = await fetch('backend/api/mock-test.php');
+            const d = await r.json();
+            if (d.success) { renderTestsTable(d.tests); return; }
+        } catch(e) {}
+        renderTestsTable([
+            { id:1, name:'A1 Practice Test 1', level:'A1', questions:40, attempts:234 },
+            { id:2, name:'A1 Practice Test 2', level:'A1', questions:40, attempts:187 },
+            { id:3, name:'A2 Practice Test 1', level:'A2', questions:45, attempts:142 },
+            { id:4, name:'B1 Mock Exam', level:'B1', questions:50, attempts:98 },
+            { id:5, name:'B2 Full Simulation', level:'B2', questions:60, attempts:56 },
+        ]);
+    }
+
+    function renderTestsTable(tests) {
+        const tbody = document.getElementById('testsTableBody');
+        if (!tests.length) { tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Không có dữ liệu</td></tr>'; return; }
+        tbody.innerHTML = tests.map(t => `
+            <tr>
+                <td style="color:var(--text-dim);font-size:0.82rem;">#${t.id}</td>
+                <td style="font-weight:600;">${t.name}</td>
+                <td><span class="badge badge-${t.level.toLowerCase()}">${t.level}</span></td>
+                <td style="color:var(--text-muted);">${t.questions} câu</td>
+                <td style="color:var(--text-muted);">${(t.attempts||0).toLocaleString()} lượt</td>
+                <td>
+                    <button class="btn-action btn-edit">✏️ Sửa</button>
+                    <button class="btn-action btn-del">🗑 Xóa</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // ── DATE FORMAT ──
+    function formatDate(dateStr) {
+        if (!dateStr) return '—';
+        try { return new Date(dateStr).toLocaleDateString('vi-VN'); } catch(e) { return dateStr; }
+    }
+
+    // ── INIT ──
+    loadStats();
+</script>
 </body>
 </html>

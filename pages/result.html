@@ -3,249 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kết Quả - EAnh</title>
+    <title>Kết quả - EAnh</title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">EAnh</div>
-                <nav>
-                    <ul class="nav-menu">
-                        <li><a href="../dashboard.html">Dashboard</a></li>
-                        <li><a href="result.html" class="active">Kết quả</a></li>
-                        <li><a href="../backend/auth/logout.php">Đăng xuất</a></li>
-                    </ul>
-                </nav>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header"><h2>🎓 EAnh</h2></div>
+            <nav class="sidebar-nav">
+                <a href="../dashboard.html" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+                <a href="vocabulary.html" class="nav-item"><span class="icon">📚</span> Từ vựng</a>
+                <a href="grammar.html" class="nav-item"><span class="icon">✏️</span> Ngữ pháp</a>
+                <a href="listening.html" class="nav-item"><span class="icon">🎧</span> Luyện nghe</a>
+                <a href="reading.html" class="nav-item"><span class="icon">📖</span> Luyện đọc</a>
+                <a href="writing.html" class="nav-item"><span class="icon">✍️</span> Luyện viết</a>
+                <a href="speaking.html" class="nav-item"><span class="icon">🎤</span> Luyện nói</a>
+                <a href="mock-test.html" class="nav-item"><span class="icon">📝</span> Thi thử</a>
+                <a href="result.html" class="nav-item active"><span class="icon">📈</span> Kết quả</a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="profile.html" class="nav-item"><span class="icon">👤</span> Hồ sơ</a>
+                <a href="#" id="logoutBtn" class="nav-item"><span class="icon">🚪</span> Đăng xuất</a>
             </div>
-        </div>
-    </header>
+        </aside>
 
-    <div class="container" style="margin-top: 2rem; margin-bottom: 2rem;">
-        <h1 style="margin-bottom: 2rem;">📊 Kết Quả & Thống Kê</h1>
+        <main class="main-content">
+            <header class="content-header">
+                <h1>📈 Kết quả & Thống kê</h1>
+            </header>
 
-        <div style="max-width: 1200px; margin: 0 auto;">
-            <!-- Overall Stats -->
             <div class="stats-grid" style="margin-bottom: 2rem;">
                 <div class="stat-card">
-                    <div class="stat-value" id="totalTests">0</div>
-                    <div class="stat-label">Bài thi đã làm</div>
-                </div>
-                <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
-                    <div class="stat-value" id="avgScore">0%</div>
-                    <div class="stat-label">Điểm trung bình</div>
-                </div>
-                <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-                    <div class="stat-value" id="highestScore">0%</div>
-                    <div class="stat-label">Điểm cao nhất</div>
-                </div>
-                <div class="stat-card" style="background: linear-gradient(135deg, #ec4899, #db2777);">
-                    <div class="stat-value" id="totalTime">0h</div>
-                    <div class="stat-label">Tổng thời gian học</div>
-                </div>
-            </div>
-
-            <!-- Filter -->
-            <div class="card" style="margin-bottom: 2rem;">
-                <div class="grid grid-3">
-                    <div class="form-group">
-                        <label class="form-label">Loại bài thi</label>
-                        <select class="form-control" id="testTypeFilter">
-                            <option value="">Tất cả</option>
-                            <option value="vocabulary">Từ vựng</option>
-                            <option value="grammar">Ngữ pháp</option>
-                            <option value="listening">Nghe</option>
-                            <option value="reading">Đọc</option>
-                            <option value="test">Thi thử</option>
-                        </select>
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-info">
+                        <h3 id="totalTests">0</h3>
+                        <p>Bài thi đã làm</p>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Thời gian</label>
-                        <select class="form-control" id="timeFilter">
-                            <option value="7">7 ngày qua</option>
-                            <option value="30" selected>30 ngày qua</option>
-                            <option value="90">90 ngày qua</option>
-                            <option value="all">Tất cả</option>
-                        </select>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-info">
+                        <h3 id="avgScore">0%</h3>
+                        <p>Điểm trung bình</p>
                     </div>
-                    <div style="display: flex; align-items: flex-end;">
-                        <button class="btn btn-primary" style="width: 100%;" onclick="loadResults()">Lọc kết quả</button>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-info">
+                        <h3 id="totalWords">0</h3>
+                        <p>Từ đã học</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-info">
+                        <h3 id="studyHours">0h</h3>
+                        <p>Thời gian học</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Results Table -->
-            <div class="card">
-                <h3 class="card-title">Lịch sử làm bài</h3>
-                <div style="overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="border-bottom: 2px solid var(--border);">
-                                <th style="padding: 1rem; text-align: left;">Ngày</th>
-                                <th style="padding: 1rem; text-align: left;">Loại bài</th>
-                                <th style="padding: 1rem; text-align: left;">Tên bài</th>
-                                <th style="padding: 1rem; text-align: center;">Điểm</th>
-                                <th style="padding: 1rem; text-align: center;">Thời gian</th>
-                                <th style="padding: 1rem; text-align: center;">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultsTable">
-                            <tr>
-                                <td colspan="6" style="padding: 2rem; text-align: center; color: var(--text-gray);">
-                                    Đang tải dữ liệu...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <div style="background: linear-gradient(135deg, var(--dark-light), var(--dark-lighter)); padding: 2rem; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 2rem;">
+                <h2 style="margin-bottom: 1.5rem;">📊 Biểu đồ tiến độ</h2>
+                <div id="progressChart" style="height: 300px; display: flex; align-items: flex-end; gap: 1rem; padding: 1rem;">
+                    <!-- Simple bar chart -->
                 </div>
             </div>
 
-            <!-- Progress Chart -->
-            <div class="grid grid-2" style="margin-top: 2rem;">
-                <div class="card">
-                    <h3 class="card-title">Tiến độ theo thời gian</h3>
-                    <canvas id="progressChart" height="200"></canvas>
-                </div>
-
-                <div class="card">
-                    <h3 class="card-title">Phân bố điểm số</h3>
-                    <canvas id="scoreChart" height="200"></canvas>
-                </div>
+            <div style="background: linear-gradient(135deg, var(--dark-light), var(--dark-lighter)); padding: 2rem; border-radius: 15px; border: 1px solid var(--border);">
+                <h2 style="margin-bottom: 1.5rem;">📝 Lịch sử thi</h2>
+                <div id="testHistory"></div>
             </div>
-
-            <!-- Detailed Analysis -->
-            <div class="card" style="margin-top: 2rem;">
-                <h3 class="card-title">Phân tích chi tiết</h3>
-                <div id="detailedAnalysis" class="grid grid-2">
-                    <div style="padding: 1.5rem; background: rgba(99, 102, 241, 0.1); border-radius: 8px;">
-                        <h4 style="margin-bottom: 1rem; color: var(--primary);">Điểm mạnh</h4>
-                        <ul id="strengthsList" style="list-style: none; padding: 0; color: var(--text-gray);">
-                            <li style="padding: 0.5rem 0;">📈 Đang phân tích...</li>
-                        </ul>
-                    </div>
-                    <div style="padding: 1.5rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
-                        <h4 style="margin-bottom: 1rem; color: var(--danger);">Cần cải thiện</h4>
-                        <ul id="weaknessesList" style="list-style: none; padding: 0; color: var(--text-gray);">
-                            <li style="padding: 0.5rem 0;">📉 Đang phân tích...</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </main>
     </div>
 
+    <style>
+        .history-item {
+            background: var(--dark);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1rem;
+            align-items: center;
+        }
+        .history-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        .history-meta {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        .history-score {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 0.5rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .chart-bar:hover {
+            opacity: 0.8;
+        }
+    </style>
+
+    <script src="../assets/js/main.js"></script>
     <script>
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.id) window.location.href = '../login.html';
+        
+        document.getElementById('logoutBtn').onclick = (e) => {
+            e.preventDefault();
+            if (confirm('Đăng xuất?')) { localStorage.clear(); window.location.href = '../login.html'; }
+        };
+
         async function loadResults() {
             try {
-                const testType = document.getElementById('testTypeFilter').value;
-                const timeRange = document.getElementById('timeFilter').value;
-
-                const params = new URLSearchParams();
-                if (testType) params.append('type', testType);
-                if (timeRange !== 'all') params.append('days', timeRange);
-
-                const response = await fetch(`../backend/api/result.php?${params}`);
-                const data = await response.json();
-
+                const res = await fetch(`../backend/api/result.php?action=stats&userId=${user.id}`);
+                const data = await res.json();
                 if (data.success) {
                     updateStats(data.stats);
-                    updateResultsTable(data.results);
-                    updateAnalysis(data.analysis);
+                }
+
+                const historyRes = await fetch(`../backend/api/result.php?action=testResults&userId=${user.id}`);
+                const historyData = await historyRes.json();
+                if (historyData.success) {
+                    displayHistory(historyData.results);
+                    renderChart(historyData.results);
                 }
             } catch (error) {
-                console.error('Error loading results:', error);
+                console.error(error);
+                showToast('Lỗi tải dữ liệu', 'error');
             }
         }
 
         function updateStats(stats) {
-            document.getElementById('totalTests').textContent = stats.total_tests || 0;
-            document.getElementById('avgScore').textContent = (stats.avg_score || 0) + '%';
-            document.getElementById('highestScore').textContent = (stats.highest_score || 0) + '%';
-            
-            const hours = Math.floor((stats.total_time || 0) / 3600);
-            document.getElementById('totalTime').textContent = hours + 'h';
+            document.getElementById('totalTests').textContent = stats.completedTests || 0;
+            document.getElementById('avgScore').textContent = (stats.avgScore || 0) + '%';
+            document.getElementById('totalWords').textContent = stats.totalWords || 0;
+            document.getElementById('studyHours').textContent = (stats.studyTime || 0) + 'h';
         }
 
-        function updateResultsTable(results) {
-            const tbody = document.getElementById('resultsTable');
-            
-            if (results && results.length > 0) {
-                tbody.innerHTML = results.map(result => {
-                    const scoreClass = result.score >= 80 ? 'success' : result.score >= 60 ? 'warning' : 'danger';
-                    return `
-                        <tr style="border-bottom: 1px solid var(--border);">
-                            <td style="padding: 1rem;">${new Date(result.completed_at).toLocaleDateString('vi-VN')}</td>
-                            <td style="padding: 1rem;">
-                                <span style="padding: 0.25rem 0.75rem; background: var(--primary); border-radius: 4px; font-size: 0.85rem;">
-                                    ${result.activity_type}
-                                </span>
-                            </td>
-                            <td style="padding: 1rem;">${result.test_name || 'Bài tập'}</td>
-                            <td style="padding: 1rem; text-align: center;">
-                                <span style="padding: 0.5rem 1rem; background: var(--${scoreClass}); border-radius: 4px; font-weight: 600;">
-                                    ${result.score}%
-                                </span>
-                            </td>
-                            <td style="padding: 1rem; text-align: center; color: var(--text-gray);">
-                                ${Math.floor(result.time_spent / 60)}m ${result.time_spent % 60}s
-                            </td>
-                            <td style="padding: 1rem; text-align: center;">
-                                <button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem;" onclick="viewDetail(${result.id})">
-                                    Xem chi tiết
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-            } else {
-                tbody.innerHTML = '<tr><td colspan="6" style="padding: 2rem; text-align: center; color: var(--text-gray);">Chưa có kết quả nào</td></tr>';
+        function displayHistory(results) {
+            const container = document.getElementById('testHistory');
+            if (results.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Chưa có kết quả nào</p>';
+                return;
             }
+
+            container.innerHTML = results.map(result => `
+                <div class="history-item">
+                    <div>
+                        <div class="history-title">${result.title || 'Bài thi'}</div>
+                        <div class="history-meta">
+                            📅 ${formatDate(result.completed_at)} | 
+                            ⏱️ ${Math.floor(result.time_spent / 60)} phút |
+                            ✅ ${result.correct_answers}/${result.total_questions} câu đúng
+                        </div>
+                    </div>
+                    <div class="history-score">${Math.round(result.score)}%</div>
+                </div>
+            `).join('');
         }
 
-        function updateAnalysis(analysis) {
-            if (!analysis) return;
-
-            // Strengths
-            const strengthsList = document.getElementById('strengthsList');
-            if (analysis.strengths && analysis.strengths.length > 0) {
-                strengthsList.innerHTML = analysis.strengths.map(s => 
-                    `<li style="padding: 0.5rem 0;">✓ ${s}</li>`
-                ).join('');
-            } else {
-                strengthsList.innerHTML = '<li style="padding: 0.5rem 0;">Chưa đủ dữ liệu để phân tích</li>';
+        function renderChart(results) {
+            const container = document.getElementById('progressChart');
+            if (results.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin: auto;">Chưa có dữ liệu</p>';
+                return;
             }
 
-            // Weaknesses
-            const weaknessesList = document.getElementById('weaknessesList');
-            if (analysis.weaknesses && analysis.weaknesses.length > 0) {
-                weaknessesList.innerHTML = analysis.weaknesses.map(w => 
-                    `<li style="padding: 0.5rem 0;">→ ${w}</li>`
-                ).join('');
-            } else {
-                weaknessesList.innerHTML = '<li style="padding: 0.5rem 0;">Chưa đủ dữ liệu để phân tích</li>';
-            }
-        }
+            const recentResults = results.slice(0, 10).reverse();
+            const maxScore = 100;
 
-        function viewDetail(resultId) {
-            alert(`Xem chi tiết kết quả #${resultId} - Chức năng đang phát triển`);
-        }
-
-        // Placeholder for charts
-        function initCharts() {
-            const ctx1 = document.getElementById('progressChart');
-            const ctx2 = document.getElementById('scoreChart');
-            
-            if (ctx1) {
-                ctx1.getContext('2d').fillText('Biểu đồ tiến độ', 10, 50);
-            }
-            if (ctx2) {
-                ctx2.getContext('2d').fillText('Biểu đồ phân bố điểm', 10, 50);
-            }
+            container.innerHTML = recentResults.map((result, i) => {
+                const height = (result.score / maxScore) * 100;
+                return `
+                    <div class="chart-bar" style="height: ${height}%;" title="${result.title}: ${Math.round(result.score)}%">
+                        ${Math.round(result.score)}%
+                    </div>
+                `;
+            }).join('');
         }
 
         loadResults();
-        initCharts();
     </script>
 </body>
 </html>

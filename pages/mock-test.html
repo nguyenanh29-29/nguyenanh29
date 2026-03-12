@@ -3,264 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thi Thử - EAnh</title>
+    <title>Thi thử - EAnh</title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">EAnh</div>
-                <nav>
-                    <ul class="nav-menu">
-                        <li><a href="../dashboard.html">Dashboard</a></li>
-                        <li><a href="mock-test.html" class="active">Thi thử</a></li>
-                        <li><a href="../backend/auth/logout.php">Đăng xuất</a></li>
-                    </ul>
-                </nav>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header"><h2>🎓 EAnh</h2></div>
+            <nav class="sidebar-nav">
+                <a href="../dashboard.html" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+                <a href="vocabulary.html" class="nav-item"><span class="icon">📚</span> Từ vựng</a>
+                <a href="grammar.html" class="nav-item"><span class="icon">✏️</span> Ngữ pháp</a>
+                <a href="listening.html" class="nav-item"><span class="icon">🎧</span> Luyện nghe</a>
+                <a href="reading.html" class="nav-item"><span class="icon">📖</span> Luyện đọc</a>
+                <a href="writing.html" class="nav-item"><span class="icon">✍️</span> Luyện viết</a>
+                <a href="speaking.html" class="nav-item"><span class="icon">🎤</span> Luyện nói</a>
+                <a href="mock-test.html" class="nav-item active"><span class="icon">📝</span> Thi thử</a>
+                <a href="result.html" class="nav-item"><span class="icon">📈</span> Kết quả</a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="profile.html" class="nav-item"><span class="icon">👤</span> Hồ sơ</a>
+                <a href="#" id="logoutBtn" class="nav-item"><span class="icon">🚪</span> Đăng xuất</a>
             </div>
-        </div>
-    </header>
+        </aside>
 
-    <div class="container" style="margin-top: 2rem; margin-bottom: 2rem;">
-        <h1 style="margin-bottom: 2rem;">📝 Thi Thử</h1>
+        <main class="main-content">
+            <header class="content-header"><h1>📝 Thi thử</h1></header>
 
-        <div style="max-width: 1000px; margin: 0 auto;">
-            <!-- Test Selection -->
-            <div id="testSelection">
-                <div class="grid grid-2" style="margin-bottom: 2rem;">
-                    <div class="card">
-                        <div style="text-align: center; font-size: 4rem; margin-bottom: 1rem;">📘</div>
-                        <h3 class="card-title">TOEIC</h3>
-                        <p style="color: var(--text-gray); margin-bottom: 1rem;">
-                            Test of English for International Communication
-                        </p>
-                        <ul style="color: var(--text-gray); margin-bottom: 1rem; list-style: none; padding: 0;">
-                            <li>⏱️ Thời gian: 120 phút</li>
-                            <li>📊 200 câu hỏi</li>
-                            <li>📈 Điểm: 10-990</li>
-                        </ul>
-                        <button class="btn btn-primary" style="width: 100%;" onclick="loadTests('TOEIC')">Chọn đề thi</button>
-                    </div>
-
-                    <div class="card">
-                        <div style="text-align: center; font-size: 4rem; margin-bottom: 1rem;">📗</div>
-                        <h3 class="card-title">IELTS</h3>
-                        <p style="color: var(--text-gray); margin-bottom: 1rem;">
-                            International English Language Testing System
-                        </p>
-                        <ul style="color: var(--text-gray); margin-bottom: 1rem; list-style: none; padding: 0;">
-                            <li>⏱️ Thời gian: 165 phút</li>
-                            <li>📊 4 kỹ năng</li>
-                            <li>📈 Band: 0-9</li>
-                        </ul>
-                        <button class="btn btn-primary" style="width: 100%;" onclick="loadTests('IELTS')">Chọn đề thi</button>
-                    </div>
-                </div>
-
-                <!-- Test List -->
-                <div id="testList" class="hidden">
-                    <button class="btn btn-outline mb-2" onclick="backToSelection()">← Quay lại</button>
-                    <div class="card">
-                        <h3 class="card-title" id="testTypeTitle">Danh sách đề thi</h3>
-                        <div id="testItems">
-                            <p style="color: var(--text-gray); text-align: center; padding: 2rem;">Đang tải...</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="filter-section" style="margin-bottom: 2rem;">
+                <select id="typeFilter" class="filter-select">
+                    <option value="">Tất cả loại</option>
+                    <option value="vocabulary">Từ vựng</option>
+                    <option value="grammar">Ngữ pháp</option>
+                    <option value="listening">Nghe</option>
+                    <option value="reading">Đọc</option>
+                    <option value="full">Tổng hợp</option>
+                </select>
+                <select id="levelFilter" class="filter-select">
+                    <option value="">Tất cả cấp độ</option>
+                    <option value="A1">A1</option><option value="A2">A2</option>
+                    <option value="B1">B1</option><option value="B2">B2</option>
+                    <option value="C1">C1</option><option value="C2">C2</option>
+                </select>
+                <button id="searchBtn" class="btn-primary">Tìm kiếm</button>
             </div>
 
-            <!-- Test Taking -->
-            <div id="testTaking" class="hidden">
-                <div class="card" style="position: sticky; top: 80px; z-index: 10; margin-bottom: 1rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h3 class="card-title" id="testTitle" style="margin: 0;">Đề thi</h3>
-                        <div style="display: flex; gap: 2rem; align-items: center;">
-                            <div>
-                                <span style="color: var(--text-gray);">Câu hỏi:</span>
-                                <strong id="questionProgress">0/0</strong>
-                            </div>
-                            <div>
-                                <span style="color: var(--text-gray);">Thời gian:</span>
-                                <strong id="timeRemaining" style="color: var(--warning);">00:00:00</strong>
-                            </div>
-                            <button class="btn btn-danger" onclick="submitTest()">Nộp bài</button>
-                        </div>
-                    </div>
-                </div>
+            <div id="testList" class="test-grid"></div>
+        </main>
+    </div>
 
-                <div class="card">
-                    <div id="questionsContainer"></div>
-                </div>
-            </div>
+    <div id="testModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <div id="testDetail"></div>
         </div>
     </div>
 
+    <style>
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+        .test-card { background: linear-gradient(135deg, var(--dark-light), var(--dark-lighter)); padding: 2rem; border-radius: 15px; border: 1px solid var(--border); cursor: pointer; transition: all 0.3s; }
+        .test-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); }
+        .test-title { font-size: 1.4rem; font-weight: bold; color: var(--primary); margin-bottom: 1rem; }
+        .test-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.875rem; color: var(--text-muted); }
+        .timer { position: sticky; top: 0; background: var(--dark-light); padding: 1rem; border-radius: 10px; margin-bottom: 1rem; text-align: center; font-size: 1.5rem; font-weight: bold; color: var(--primary); z-index: 10; }
+        .question-nav { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 0.5rem; margin-bottom: 2rem; }
+        .question-nav-btn { padding: 0.5rem; background: var(--dark); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; text-align: center; transition: all 0.3s; }
+        .question-nav-btn.active { background: var(--primary); color: white; }
+        .question-nav-btn.answered { background: var(--success); color: white; }
+        .filter-select { padding: 0.75rem 1rem; background: var(--dark-light); border: 1px solid var(--border); border-radius: 8px; color: var(--text); cursor: pointer; flex: 1; min-width: 150px; }
+        .filter-section { display: flex; gap: 1rem; flex-wrap: wrap; }
+    </style>
+
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/modal.js"></script>
     <script>
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.id) window.location.href = '../login.html';
+        
+        document.getElementById('logoutBtn').onclick = (e) => {
+            e.preventDefault();
+            if (confirm('Đăng xuất?')) { localStorage.clear(); window.location.href = '../login.html'; }
+        };
+
         let currentTest = null;
+        let currentQuestionIndex = 0;
         let userAnswers = {};
-        let testTimer = null;
         let timeLeft = 0;
+        let timerInterval = null;
 
-        async function loadTests(type) {
+        async function loadTests() {
             try {
-                const response = await fetch(`../backend/api/test.php?type=${type}`);
-                const data = await response.json();
-
-                document.getElementById('testSelection').style.display = 'none';
-                document.getElementById('testList').classList.remove('hidden');
-                document.getElementById('testTypeTitle').textContent = `Đề thi ${type}`;
-
-                const container = document.getElementById('testItems');
-                if (data.success && data.tests.length > 0) {
-                    container.innerHTML = data.tests.map(test => `
-                        <div style="padding: 1.5rem; border-bottom: 1px solid var(--border); cursor: pointer; transition: all 0.3s;" 
-                             onmouseover="this.style.background='rgba(99,102,241,0.1)'" 
-                             onmouseout="this.style.background='transparent'"
-                             onclick="startTest(${test.id})">
-                            <h4 style="margin-bottom: 0.5rem; color: var(--primary);">${test.title}</h4>
-                            <div style="color: var(--text-gray); font-size: 0.9rem;">
-                                <span>⏱️ ${test.duration} phút</span>
-                                <span style="margin-left: 1rem;">📊 Cấp độ: ${test.level}</span>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = '<p style="color: var(--text-gray); text-align: center; padding: 2rem;">Không có đề thi</p>';
-                }
-            } catch (error) {
-                console.error('Error loading tests:', error);
-            }
+                const type = document.getElementById('typeFilter').value;
+                const level = document.getElementById('levelFilter').value;
+                const res = await fetch(`../backend/api/test.php?type=${type}&level=${level}`);
+                const data = await res.json();
+                if (data.success) displayTests(data.tests);
+            } catch (error) { showToast('Lỗi tải dữ liệu', 'error'); }
         }
 
-        function backToSelection() {
-            document.getElementById('testList').classList.add('hidden');
-            document.getElementById('testSelection').style.display = 'block';
+        function displayTests(tests) {
+            const container = document.getElementById('testList');
+            if (tests.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Không có bài thi nào</p>';
+                return;
+            }
+            container.innerHTML = tests.map(test => `
+                <div class="test-card" onclick="startTest(${test.id})">
+                    <div class="test-title">${test.title}</div>
+                    <p style="color: var(--text-muted);">${test.description || 'Bài thi trắc nghiệm'}</p>
+                    <div class="test-meta">
+                        <span>📝 ${test.total_questions} câu</span>
+                        <span>⏱️ ${test.duration} phút</span>
+                        <span class="vocab-level">${test.level}</span>
+                    </div>
+                </div>
+            `).join('');
         }
 
         async function startTest(testId) {
             try {
-                const response = await fetch(`../backend/api/test.php?id=${testId}`);
-                const data = await response.json();
-
+                const res = await fetch(`../backend/api/test.php?id=${testId}&action=start`);
+                const data = await res.json();
                 if (data.success) {
                     currentTest = data.test;
+                    currentQuestionIndex = 0;
                     userAnswers = {};
-
-                    document.getElementById('testList').classList.add('hidden');
-                    document.getElementById('testTaking').classList.remove('hidden');
-
-                    document.getElementById('testTitle').textContent = data.test.title;
-
-                    // Load questions
-                    loadTestQuestions(data.test.questions);
-
-                    // Start timer
-                    timeLeft = data.test.duration * 60;
+                    timeLeft = currentTest.duration * 60;
+                    showTestInterface();
                     startTimer();
                 }
-            } catch (error) {
-                console.error('Error starting test:', error);
+            } catch (error) { showToast('Lỗi tải bài thi', 'error'); }
+        }
+
+        function showTestInterface() {
+            const detail = document.getElementById('testDetail');
+            
+            detail.innerHTML = `
+                <div class="timer" id="timer">⏱️ ${formatTime(timeLeft)}</div>
+                
+                <h2 style="color: var(--primary); margin-bottom: 1rem; padding-right: 2rem;">${currentTest.title}</h2>
+                
+                <div class="question-nav" id="questionNav"></div>
+                
+                <div id="questionContainer"></div>
+                
+                <div style="display: flex; gap: 1rem; justify-content: space-between; margin-top: 2rem; flex-wrap: wrap;">
+                    <button onclick="prevQuestion()" class="btn-outline" id="prevBtn">← Trước</button>
+                    <button onclick="submitTest()" class="btn-primary">Nộp bài</button>
+                    <button onclick="nextQuestion()" class="btn-primary" id="nextBtn">Tiếp →</button>
+                </div>
+            `;
+            
+            openModal('testModal');
+            renderQuestionNav();
+            showQuestion(currentQuestionIndex);
+        }
+
+        function renderQuestionNav() {
+            const nav = document.getElementById('questionNav');
+            nav.innerHTML = currentTest.questions.map((q, i) => `
+                <div class="question-nav-btn ${i === currentQuestionIndex ? 'active' : ''} ${userAnswers[i] ? 'answered' : ''}" onclick="showQuestion(${i})">
+                    ${i + 1}
+                </div>
+            `).join('');
+        }
+
+        function showQuestion(index) {
+            currentQuestionIndex = index;
+            const q = currentTest.questions[index];
+            const container = document.getElementById('questionContainer');
+            
+            container.innerHTML = `
+                <div style="background: var(--dark); padding: 2rem; border-radius: 10px;">
+                    <div style="font-weight: 600; margin-bottom: 1.5rem; font-size: 1.1rem;">
+                        Câu ${index + 1}: ${q.question_text}
+                    </div>
+                    <div style="display: grid; gap: 1rem;">
+                        ${q.option_a ? `<div class="answer-option ${userAnswers[index] === 'A' ? 'selected' : ''}" onclick="selectTestAnswer('A')">${q.option_a}</div>` : ''}
+                        ${q.option_b ? `<div class="answer-option ${userAnswers[index] === 'B' ? 'selected' : ''}" onclick="selectTestAnswer('B')">${q.option_b}</div>` : ''}
+                        ${q.option_c ? `<div class="answer-option ${userAnswers[index] === 'C' ? 'selected' : ''}" onclick="selectTestAnswer('C')">${q.option_c}</div>` : ''}
+                        ${q.option_d ? `<div class="answer-option ${userAnswers[index] === 'D' ? 'selected' : ''}" onclick="selectTestAnswer('D')">${q.option_d}</div>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            renderQuestionNav();
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === currentTest.questions.length - 1;
+        }
+
+        function selectTestAnswer(answer) {
+            userAnswers[currentQuestionIndex] = answer;
+            showQuestion(currentQuestionIndex);
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < currentTest.questions.length - 1) {
+                showQuestion(currentQuestionIndex + 1);
             }
         }
 
-        function loadTestQuestions(questionsJson) {
-            try {
-                const questions = JSON.parse(questionsJson || '[]');
-                const container = document.getElementById('questionsContainer');
-
-                document.getElementById('questionProgress').textContent = `0/${questions.length}`;
-
-                if (questions.length > 0) {
-                    container.innerHTML = questions.map((q, index) => `
-                        <div style="margin-bottom: 2rem; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 8px;">
-                            <p style="margin-bottom: 1rem; font-weight: 600;">
-                                <span style="color: var(--primary);">Câu ${index + 1}:</span> ${q.question}
-                            </p>
-                            ${q.options.map((opt, i) => `
-                                <label style="display: block; padding: 1rem; cursor: pointer; margin-bottom: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 4px; transition: all 0.3s;"
-                                       onmouseover="this.style.background='rgba(99,102,241,0.1)'"
-                                       onmouseout="this.style.background='rgba(255,255,255,0.05)'">
-                                    <input type="radio" name="question${index}" value="${i}" 
-                                           onchange="userAnswers[${index}] = ${i}; updateProgress()" 
-                                           style="margin-right: 0.5rem;">
-                                    ${opt}
-                                </label>
-                            `).join('')}
-                        </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = '<p style="color: var(--text-gray);">Không có câu hỏi</p>';
-                }
-            } catch (error) {
-                console.error('Error loading questions:', error);
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                showQuestion(currentQuestionIndex - 1);
             }
-        }
-
-        function updateProgress() {
-            const questions = JSON.parse(currentTest.questions || '[]');
-            const answered = Object.keys(userAnswers).length;
-            document.getElementById('questionProgress').textContent = `${answered}/${questions.length}`;
         }
 
         function startTimer() {
-            testTimer = setInterval(() => {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
                 timeLeft--;
-
-                const hours = Math.floor(timeLeft / 3600);
-                const minutes = Math.floor((timeLeft % 3600) / 60);
-                const seconds = timeLeft % 60;
-
-                document.getElementById('timeRemaining').textContent = 
-                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
+                document.getElementById('timer').textContent = '⏱️ ' + formatTime(timeLeft);
+                
                 if (timeLeft <= 0) {
-                    clearInterval(testTimer);
-                    alert('Hết giờ!');
+                    clearInterval(timerInterval);
+                    showToast('Hết giờ!', 'warning');
                     submitTest();
+                } else if (timeLeft <= 300 && timeLeft % 60 === 0) {
+                    showToast(`Còn ${timeLeft / 60} phút!`, 'warning');
                 }
             }, 1000);
         }
 
         async function submitTest() {
             if (!confirm('Bạn có chắc muốn nộp bài?')) return;
-
-            clearInterval(testTimer);
-
+            
+            clearInterval(timerInterval);
+            
+            let correctCount = 0;
+            currentTest.questions.forEach((q, i) => {
+                if (userAnswers[i] === q.correct_answer) correctCount++;
+            });
+            
+            const score = Math.round((correctCount / currentTest.questions.length) * 100);
+            const timeSpent = (currentTest.duration * 60) - timeLeft;
+            
             try {
-                const questions = JSON.parse(currentTest.questions || '[]');
-                let correct = 0;
-
-                questions.forEach((q, index) => {
-                    if (userAnswers[index] === q.answer) {
-                        correct++;
-                    }
-                });
-
-                const score = (correct / questions.length * 100).toFixed(1);
-                const timeSpent = (currentTest.duration * 60) - timeLeft;
-
-                // Save result
-                const response = await fetch('../backend/api/test.php', {
+                const formData = new FormData();
+                formData.append('action', 'save_result');
+                formData.append('userId', user.id);
+                formData.append('testId', currentTest.id);
+                formData.append('score', score);
+                formData.append('totalQuestions', currentTest.questions.length);
+                formData.append('correctAnswers', correctCount);
+                formData.append('timeSpent', timeSpent);
+                formData.append('answers', JSON.stringify(userAnswers));
+                
+                const res = await fetch('../backend/api/result.php?action=saveTestResult', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        test_id: currentTest.id,
-                        score: score,
-                        answers: JSON.stringify(userAnswers),
-                        time_spent: timeSpent
-                    })
+                    body: formData
                 });
-
-                const data = await response.json();
+                
+                const data = await res.json();
                 if (data.success) {
-                    alert(`Hoàn thành!\nĐiểm: ${score}%\nSố câu đúng: ${correct}/${questions.length}`);
-                    window.location.href = 'result.html';
+                    showToast('Đã lưu kết quả!', 'success');
+                    showResult(score, correctCount);
                 }
             } catch (error) {
-                alert('Có lỗi xảy ra khi nộp bài');
+                showResult(score, correctCount);
             }
         }
+
+        function showResult(score, correctCount) {
+            document.getElementById('testDetail').innerHTML = `
+                <div style="text-align: center; padding: 3rem;">
+                    <div style="font-size: 5rem; margin-bottom: 1rem;">
+                        ${score >= 80 ? '🎉' : score >= 60 ? '👍' : '💪'}
+                    </div>
+                    <h2 style="color: var(--primary); margin-bottom: 1rem;">Kết quả</h2>
+                    <div style="font-size: 4rem; font-weight: bold; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem;">
+                        ${score}%
+                    </div>
+                    <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">
+                        Số câu đúng: ${correctCount}/${currentTest.questions.length}
+                    </p>
+                    <p style="color: var(--text-muted); margin-bottom: 2rem;">
+                        ${score >= 80 ? 'Xuất sắc!' : score >= 60 ? 'Tốt lắm!' : 'Cố gắng thêm nhé!'}
+                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <button onclick="closeTest()" class="btn-outline">Đóng</button>
+                        <button onclick="window.location.href='result.html'" class="btn-primary">Xem chi tiết</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function closeTest() {
+            closeModal('testModal');
+            if (timerInterval) clearInterval(timerInterval);
+            loadTests();
+        }
+
+        document.getElementById('searchBtn').onclick = loadTests;
+        document.getElementById('typeFilter').onchange = loadTests;
+        document.getElementById('levelFilter').onchange = loadTests;
+        loadTests();
     </script>
 </body>
 </html>

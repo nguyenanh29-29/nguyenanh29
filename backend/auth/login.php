@@ -1,60 +1,87 @@
 <?php
+// login.php - Xử lý đăng nhập
+
 require_once '../config/db.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    sendJSON(['success' => false, 'message' => 'Method not allowed'], 405);
-}
+$database = new Database();
+$db = $database->getConnection();
 
-// Lấy dữ liệu (Hỗ trợ cả JSON và Form Post)
-$data = getInputData();
-
-$email = $data['email'] ?? '';
-$password = $data['password'] ?? '';
-
-if (empty($email) || empty($password)) {
-    sendJSON(['success' => false, 'message' => 'Vui lòng nhập Email và Mật khẩu']);
-}
-
-try {
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-    // Kiểm tra user tồn tại
-    if (!$user) {
-        sendJSON(['success' => false, 'message' => 'Email này chưa được đăng ký']);
+    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+    $password = isset($_POST['password']) ? $_POST['password'] : '';
+    $isAdmin = isset($_POST['isAdmin']) ? $_POST['isAdmin'] : false;
+    
+    // Validate
+    if (empty($email) || empty($password)) {
+        echo json_encode(array(
+            "success" => false,
+            "message" => "Vui lòng điền đầy đủ thông tin!"
+        ));
+        exit();
     }
     
-    // Kiểm tra nếu là tài khoản Google
-    if (!empty($user['google_id']) && empty($user['password'])) {
-        sendJSON(['success' => false, 'message' => 'Tài khoản này dùng Google Login. Vui lòng chọn "Đăng nhập bằng Google".']);
+    // Tìm user
+    $query = "SELECT id, fullname, email, password, avatar, role, created_at 
+              FROM users WHERE email = :email LIMIT 1";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(":email", $email);
+    $stmt->execute();
+    
+    if ($stmt->rowCount() > 0) {
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Kiểm tra mật khẩu
+        if (password_verify($password, $row['password'])) {
+            
+            // Nếu là admin login, kiểm tra role
+            if ($isAdmin && $row['role'] !== 'admin') {
+                echo json_encode(array(
+                    "success" => false,
+                    "message" => "Bạn không có quyền truy cập trang quản trị!"
+                ));
+                exit();
+            }
+            
+            // Tạo token (đơn giản)
+            $token = bin2hex(random_bytes(32));
+            
+            // Cập nhật last_login
+            $update_query = "UPDATE users SET last_login = NOW() WHERE id = :id";
+            $update_stmt = $db->prepare($update_query);
+            $update_stmt->bindParam(":id", $row['id']);
+            $update_stmt->execute();
+            
+            echo json_encode(array(
+                "success" => true,
+                "message" => "Đăng nhập thành công!",
+                "token" => $token,
+                "user" => array(
+                    "id" => $row['id'],
+                    "fullname" => $row['fullname'],
+                    "email" => $row['email'],
+                    "avatar" => $row['avatar'],
+                    "role" => $row['role'],
+                    "created_at" => $row['created_at']
+                )
+            ));
+        } else {
+            echo json_encode(array(
+                "success" => false,
+                "message" => "Mật khẩu không chính xác!"
+            ));
+        }
+    } else {
+        echo json_encode(array(
+            "success" => false,
+            "message" => "Email không tồn tại!"
+        ));
     }
-    
-    // Kiểm tra mật khẩu
-    if (!password_verify($password, $user['password'])) {
-        sendJSON(['success' => false, 'message' => 'Mật khẩu không đúng']);
-    }
-    
-    // Lưu session
-    $_SESSION['user_id'] = $user['id'];
-    $_SESSION['email'] = $user['email'];
-    $_SESSION['full_name'] = $user['full_name'];
-    $_SESSION['role'] = $user['role'];
-    $_SESSION['avatar'] = $user['avatar'];
-    
-    sendJSON([
-        'success' => true,
-        'message' => 'Đăng nhập thành công',
-        'user' => [
-            'id' => $user['id'],
-            'full_name' => $user['full_name'],
-            'role' => $user['role'],
-            'avatar' => $user['avatar']
-        ],
-        'redirect' => $user['role'] === 'admin' ? 'admin-dashboard.html' : 'dashboard.html'
-    ]);
-    
-} catch (Exception $e) {
-    sendJSON(['success' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()], 500);
+} else {
+    echo json_encode(array(
+        "success" => false,
+        "message" => "Invalid request method"
+    ));
 }
 ?>

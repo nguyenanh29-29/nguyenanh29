@@ -3,252 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luyện Viết - EAnh</title>
+    <title>Luyện viết - EAnh</title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">EAnh</div>
-                <nav>
-                    <ul class="nav-menu">
-                        <li><a href="../dashboard.html">Dashboard</a></li>
-                        <li><a href="writing.html" class="active">Luyện viết</a></li>
-                        <li><a href="../backend/auth/logout.php">Đăng xuất</a></li>
-                    </ul>
-                </nav>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header"><h2>🎓 EAnh</h2></div>
+            <nav class="sidebar-nav">
+                <a href="../dashboard.html" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+                <a href="vocabulary.html" class="nav-item"><span class="icon">📚</span> Từ vựng</a>
+                <a href="grammar.html" class="nav-item"><span class="icon">✏️</span> Ngữ pháp</a>
+                <a href="listening.html" class="nav-item"><span class="icon">🎧</span> Luyện nghe</a>
+                <a href="reading.html" class="nav-item"><span class="icon">📖</span> Luyện đọc</a>
+                <a href="writing.html" class="nav-item active"><span class="icon">✍️</span> Luyện viết</a>
+                <a href="speaking.html" class="nav-item"><span class="icon">🎤</span> Luyện nói</a>
+                <a href="mock-test.html" class="nav-item"><span class="icon">📝</span> Thi thử</a>
+                <a href="result.html" class="nav-item"><span class="icon">📈</span> Kết quả</a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="profile.html" class="nav-item"><span class="icon">👤</span> Hồ sơ</a>
+                <a href="#" id="logoutBtn" class="nav-item"><span class="icon">🚪</span> Đăng xuất</a>
             </div>
-        </div>
-    </header>
+        </aside>
 
-    <div class="container" style="margin-top: 2rem; margin-bottom: 2rem;">
-        <h1 style="margin-bottom: 2rem;">✍️ Luyện Viết</h1>
+        <main class="main-content">
+            <header class="content-header"><h1>✍️ Luyện viết</h1></header>
 
-        <div style="max-width: 1000px; margin: 0 auto;">
-            <!-- Topics Selection -->
-            <div class="card" style="margin-bottom: 2rem;">
-                <h3 class="card-title">Chọn chủ đề</h3>
-                <div class="grid grid-3">
-                    <button class="btn btn-outline" onclick="selectTopic('email')">📧 Email</button>
-                    <button class="btn btn-outline" onclick="selectTopic('essay')">📝 Essay</button>
-                    <button class="btn btn-outline" onclick="selectTopic('letter')">✉️ Thư</button>
-                    <button class="btn btn-outline" onclick="selectTopic('report')">📊 Báo cáo</button>
-                    <button class="btn btn-outline" onclick="selectTopic('story')">📖 Câu chuyện</button>
-                    <button class="btn btn-outline" onclick="selectTopic('review')">⭐ Đánh giá</button>
-                </div>
+            <div class="filter-section" style="margin-bottom: 2rem;">
+                <select id="levelFilter" class="filter-select">
+                    <option value="">Tất cả cấp độ</option>
+                    <option value="A1">A1</option><option value="A2">A2</option>
+                    <option value="B1">B1</option><option value="B2">B2</option>
+                    <option value="C1">C1</option><option value="C2">C2</option>
+                </select>
+                <button id="searchBtn" class="btn-primary">Tìm kiếm</button>
             </div>
 
-            <!-- Writing Area -->
-            <div class="grid" style="grid-template-columns: 2fr 1fr; gap: 2rem;">
-                <!-- Editor -->
-                <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h3 class="card-title" id="topicTitle">Chọn chủ đề để bắt đầu</h3>
-                        <span id="wordCount" style="color: var(--text-gray);">0 từ</span>
-                    </div>
+            <div id="writingList" class="writing-grid"></div>
+        </main>
+    </div>
 
-                    <div id="topicPrompt" style="padding: 1rem; background: rgba(99, 102, 241, 0.1); border-left: 3px solid var(--primary); margin-bottom: 1rem; display: none;">
-                    </div>
-
-                    <textarea id="writingArea" class="form-control" rows="20" placeholder="Bắt đầu viết tại đây..." style="resize: vertical; font-family: 'Inter', sans-serif; font-size: 1rem; line-height: 1.6;"></textarea>
-
-                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                        <button class="btn btn-primary" onclick="checkGrammar()">🔍 Kiểm tra ngữ pháp</button>
-                        <button class="btn btn-success" onclick="saveWriting()">💾 Lưu bài viết</button>
-                        <button class="btn btn-outline" onclick="clearWriting()">🗑️ Xóa</button>
-                    </div>
-                </div>
-
-                <!-- Tips & History -->
-                <div>
-                    <div class="card" style="margin-bottom: 1rem;">
-                        <h3 class="card-title">💡 Gợi ý</h3>
-                        <div id="tips" style="color: var(--text-gray);">
-                            <p>Chọn chủ đề để xem gợi ý viết</p>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3 class="card-title">📚 Bài viết của bạn</h3>
-                        <div id="savedWritings" style="max-height: 400px; overflow-y: auto;">
-                            <p style="color: var(--text-gray); text-align: center; padding: 2rem;">Chưa có bài viết nào</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div id="writingModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
+            <span class="close">&times;</span>
+            <div id="writingDetail"></div>
         </div>
     </div>
 
+    <style>
+        .writing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+        .writing-card { background: linear-gradient(135deg, var(--dark-light), var(--dark-lighter)); padding: 2rem; border-radius: 15px; border: 1px solid var(--border); cursor: pointer; transition: all 0.3s; }
+        .writing-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); }
+        .writing-title { font-size: 1.4rem; font-weight: bold; color: var(--primary); margin-bottom: 1rem; }
+        .writing-topic { background: var(--dark); padding: 1.5rem; border-radius: 10px; border-left: 4px solid var(--primary); margin: 1.5rem 0; }
+        .writing-textarea { width: 100%; min-height: 300px; padding: 1rem; background: var(--dark); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 1rem; line-height: 1.6; resize: vertical; }
+        .word-count { color: var(--text-muted); font-size: 0.875rem; margin-top: 0.5rem; }
+        .filter-select { padding: 0.75rem 1rem; background: var(--dark-light); border: 1px solid var(--border); border-radius: 8px; color: var(--text); cursor: pointer; flex: 1; min-width: 150px; }
+        .filter-section { display: flex; gap: 1rem; flex-wrap: wrap; }
+    </style>
+
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/modal.js"></script>
+
     <script>
-        const topics = {
-            email: {
-                title: 'Viết Email',
-                prompt: 'Viết một email chuyên nghiệp đến công ty ABC để xin việc làm vị trí Marketing Manager.',
-                tips: [
-                    'Bắt đầu với lời chào phù hợp',
-                    'Nêu rõ mục đích email',
-                    'Sử dụng ngôn ngữ lịch sự, chuyên nghiệp',
-                    'Kết thúc với lời cảm ơn'
-                ]
-            },
-            essay: {
-                title: 'Viết Essay',
-                prompt: 'Some people think that social media has a negative impact on society. To what extent do you agree or disagree?',
-                tips: [
-                    'Viết mở bài giới thiệu chủ đề',
-                    'Phát triển 2-3 đoạn thân bài với lập luận',
-                    'Sử dụng ví dụ cụ thể',
-                    'Kết luận tóm tắt ý kiến'
-                ]
-            },
-            letter: {
-                title: 'Viết Thư',
-                prompt: 'Viết thư cho một người bạn kể về kỳ nghỉ gần đây của bạn.',
-                tips: [
-                    'Sử dụng ngôn ngữ thân mật',
-                    'Mô tả chi tiết trải nghiệm',
-                    'Chia sẻ cảm xúc',
-                    'Hỏi thăm người nhận'
-                ]
-            },
-            report: {
-                title: 'Viết Báo Cáo',
-                prompt: 'Viết báo cáo phân tích xu hướng học trực tuyến trong năm 2024.',
-                tips: [
-                    'Trình bày dữ liệu rõ ràng',
-                    'Sử dụng biểu đồ/số liệu',
-                    'Phân tích nguyên nhân',
-                    'Đưa ra kết luận và khuyến nghị'
-                ]
-            },
-            story: {
-                title: 'Viết Câu Chuyện',
-                prompt: 'Write a short story beginning with: "It was a dark and stormy night..."',
-                tips: [
-                    'Tạo nhân vật sinh động',
-                    'Xây dựng tình tiết hấp dẫn',
-                    'Sử dụng mô tả chi tiết',
-                    'Kết thúc bất ngờ'
-                ]
-            },
-            review: {
-                title: 'Viết Đánh Giá',
-                prompt: 'Viết đánh giá về một bộ phim hoặc sách bạn đã xem/đọc gần đây.',
-                tips: [
-                    'Giới thiệu tác phẩm',
-                    'Nêu điểm mạnh và yếu',
-                    'Đưa ra đánh giá cá nhân',
-                    'Khuyến nghị cho người đọc'
-                ]
-            }
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.id) window.location.href = '../login.html';
+        
+        document.getElementById('logoutBtn').onclick = (e) => {
+            e.preventDefault();
+            if (confirm('Đăng xuất?')) { localStorage.clear(); window.location.href = '../login.html'; }
         };
 
-        let currentTopic = null;
-
-        // Word counter
-        document.getElementById('writingArea').addEventListener('input', function() {
-            const text = this.value.trim();
-            const wordCount = text ? text.split(/\s+/).length : 0;
-            document.getElementById('wordCount').textContent = wordCount + ' từ';
-        });
-
-        function selectTopic(topicKey) {
-            currentTopic = topicKey;
-            const topic = topics[topicKey];
-
-            document.getElementById('topicTitle').textContent = topic.title;
-            document.getElementById('topicPrompt').style.display = 'block';
-            document.getElementById('topicPrompt').innerHTML = `<strong>Đề bài:</strong> ${topic.prompt}`;
-
-            const tipsHTML = topic.tips.map(tip => `<li style="margin-bottom: 0.5rem;">${tip}</li>`).join('');
-            document.getElementById('tips').innerHTML = `<ul style="padding-left: 1.5rem;">${tipsHTML}</ul>`;
-
-            document.getElementById('writingArea').focus();
-        }
-
-        function checkGrammar() {
-            const text = document.getElementById('writingArea').value;
-            if (!text.trim()) {
-                alert('Vui lòng nhập nội dung để kiểm tra');
-                return;
-            }
-
-            // Placeholder for grammar checking
-            alert('Chức năng kiểm tra ngữ pháp đang được phát triển.\n\nBạn có thể tích hợp API như Grammarly hoặc LanguageTool.');
-        }
-
-        async function saveWriting() {
-            const text = document.getElementById('writingArea').value;
-            if (!text.trim() || !currentTopic) {
-                alert('Vui lòng viết nội dung trước khi lưu');
-                return;
-            }
-
+        async function loadWriting() {
             try {
-                const response = await fetch('../backend/api/writing.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        topic: currentTopic,
-                        content: text,
-                        word_count: text.trim().split(/\s+/).length
-                    })
-                });
+                const level = document.getElementById('levelFilter').value;
+                const res = await fetch(`../backend/api/writing.php?level=${level}`);
+                const data = await res.json();
+                if (data.success) displayWriting(data.writing);
+            } catch (error) { showToast('Lỗi tải dữ liệu', 'error'); }
+        }
 
-                const data = await response.json();
+        function displayWriting(writing) {
+            const container = document.getElementById('writingList');
+            if (writing.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Không có đề bài nào</p>';
+                return;
+            }
+            container.innerHTML = writing.map(item => `
+                <div class="writing-card" onclick="showWriting(${item.id})">
+                    <div class="writing-title">${item.title}</div>
+                    <p style="color: var(--text-muted);">${item.topic.substring(0, 100)}...</p>
+                    <div style="margin-top: 1rem;">
+                        <span class="vocab-level">${item.level}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function showWriting(id) {
+            try {
+                const res = await fetch(`../backend/api/writing.php?id=${id}`);
+                const data = await res.json();
                 if (data.success) {
-                    alert('Đã lưu bài viết!');
-                    loadSavedWritings();
-                }
-            } catch (error) {
-                alert('Có lỗi xảy ra khi lưu bài viết');
-            }
-        }
-
-        function clearWriting() {
-            if (confirm('Bạn có chắc muốn xóa nội dung?')) {
-                document.getElementById('writingArea').value = '';
-                document.getElementById('wordCount').textContent = '0 từ';
-            }
-        }
-
-        async function loadSavedWritings() {
-            try {
-                const response = await fetch('../backend/api/writing.php');
-                const data = await response.json();
-
-                const container = document.getElementById('savedWritings');
-                if (data.success && data.writings.length > 0) {
-                    container.innerHTML = data.writings.map(w => `
-                        <div style="padding: 1rem; border-bottom: 1px solid var(--border); cursor: pointer;" onclick="loadWriting(${w.id})">
-                            <h4 style="margin-bottom: 0.5rem; color: var(--primary);">${topics[w.topic]?.title || 'Bài viết'}</h4>
-                            <small style="color: var(--text-gray);">${new Date(w.created_at).toLocaleDateString('vi-VN')} - ${w.word_count} từ</small>
+                    const writing = data.writing;
+                    document.getElementById('writingDetail').innerHTML = `
+                        <h2 style="color: var(--primary); margin-bottom: 1rem;">${writing.title}</h2>
+                        <span class="vocab-level">${writing.level}</span>
+                        
+                        <div class="writing-topic">
+                            <h3 style="color: var(--primary); margin-bottom: 0.5rem;">📝 Đề bài</h3>
+                            <p>${writing.topic}</p>
                         </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = '<p style="color: var(--text-gray); text-align: center; padding: 2rem;">Chưa có bài viết nào</p>';
+                        
+                        ${writing.guidelines ? `
+                            <div style="background: var(--dark); padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                                <h3 style="color: var(--primary); margin-bottom: 0.5rem;">💡 Hướng dẫn</h3>
+                                <p style="line-height: 1.8;">${writing.guidelines}</p>
+                            </div>
+                        ` : ''}
+                        
+                        <div style="margin-top: 2rem;">
+                            <h3 style="color: var(--primary); margin-bottom: 1rem;">✍️ Bài viết của bạn</h3>
+                            <textarea id="essayText" class="writing-textarea" placeholder="Viết bài của bạn tại đây..."></textarea>
+                            <div class="word-count">Số từ: <span id="wordCount">0</span></div>
+                            <button onclick="saveEssay(${writing.id})" class="btn-primary" style="margin-top: 1rem;">Lưu bài viết</button>
+                        </div>
+                        
+                        ${writing.sample_essay ? `
+                            <div style="background: var(--dark); padding: 1.5rem; border-radius: 10px; margin-top: 2rem;">
+                                <h3 style="color: var(--primary); margin-bottom: 1rem;">📄 Bài mẫu</h3>
+                                <p style="line-height: 1.8;">${writing.sample_essay}</p>
+                            </div>
+                        ` : ''}
+                    `;
+                    document.getElementById('readingModal').style.display = 'flex';
+                    
+                    document.getElementById('essayText').oninput = () => {
+                        const text = document.getElementById('essayText').value.trim();
+                        const words = text ? text.split(/\s+/).length : 0;
+                        document.getElementById('wordCount').textContent = words;
+                    };
                 }
-            } catch (error) {
-                console.error('Error loading writings:', error);
-            }
+            } catch (error) { console.error(error); }
         }
 
-        async function loadWriting(id) {
-            try {
-                const response = await fetch(`../backend/api/writing.php?id=${id}`);
-                const data = await response.json();
-
-                if (data.success) {
-                    document.getElementById('writingArea').value = data.writing.content;
-                    selectTopic(data.writing.topic);
-                }
-            } catch (error) {
-                console.error('Error loading writing:', error);
+        function saveEssay(writingId) {
+            const essay = document.getElementById('essayText').value;
+            if (!essay.trim()) {
+                showToast('Vui lòng viết bài trước khi lưu!', 'warning');
+                return;
             }
+            showToast('Đã lưu bài viết!', 'success');
         }
 
-        loadSavedWritings();
+        document.querySelector('.close').onclick = () => document.getElementById('writingModal').style.display = 'none';
+        document.getElementById('searchBtn').onclick = loadWriting;
+        document.getElementById('levelFilter').onchange = loadWriting;
+        loadWriting();
     </script>
 </body>
 </html>

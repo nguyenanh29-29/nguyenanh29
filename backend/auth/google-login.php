@@ -1,97 +1,100 @@
 <?php
+// google-login.php - Xử lý đăng nhập Google qua Firebase
+
 require_once '../config/db.php';
 
-// Handle Google OAuth callback
-if (isset($_GET['code'])) {
-    $code = $_GET['code'];
+$database = new Database();
+$db = $database->getConnection();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-    // Exchange code for access token
-    $tokenUrl = 'https://oauth2.googleapis.com/token';
-    $tokenData = [
-        'code' => $code,
-        'client_id' => GOOGLE_CLIENT_ID,
-        'client_secret' => GOOGLE_CLIENT_SECRET,
-        'redirect_uri' => GOOGLE_REDIRECT_URI,
-        'grant_type' => 'authorization_code'
-    ];
+    // Nhận dữ liệu từ Javascript (Firebase) gửi lên
+    $email = isset($_POST['email']) ? $_POST['email'] : '';
+    $fullname = isset($_POST['fullname']) ? $_POST['fullname'] : 'Người dùng Google';
+    $avatar = isset($_POST['avatar']) ? $_POST['avatar'] : '';
+    $google_id = isset($_POST['google_id']) ? $_POST['google_id'] : '';
     
-    $ch = curl_init($tokenUrl);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($tokenData));
-    $response = curl_exec($ch);
-    curl_close($ch);
-    
-    $tokenInfo = json_decode($response, true);
-    
-    if (isset($tokenInfo['access_token'])) {
-        // Get user info from Google
-        $userInfoUrl = 'https://www.googleapis.com/oauth2/v2/userinfo';
-        $ch = curl_init($userInfoUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $tokenInfo['access_token']
-        ]);
-        $userInfoResponse = curl_exec($ch);
-        curl_close($ch);
-        
-        $userInfo = json_decode($userInfoResponse, true);
-        
-        if (isset($userInfo['id'])) {
-            try {
-                // Check if user exists
-                $stmt = $conn->prepare("SELECT * FROM users WHERE google_id = ? OR email = ?");
-                $stmt->execute([$userInfo['id'], $userInfo['email']]);
-                $user = $stmt->fetch();
-                
-                if ($user) {
-                    // Update user info if needed
-                    $stmt = $conn->prepare("UPDATE users SET google_id = ?, full_name = ?, avatar = ? WHERE id = ?");
-                    $stmt->execute([
-                        $userInfo['id'],
-                        $userInfo['name'],
-                        $userInfo['picture'],
-                        $user['id']
-                    ]);
-                    $userId = $user['id'];
-                    $role = $user['role'];
-                } else {
-                    // Create new user
-                    $stmt = $conn->prepare("INSERT INTO users (email, google_id, full_name, avatar) VALUES (?, ?, ?, ?)");
-                    $stmt->execute([
-                        $userInfo['email'],
-                        $userInfo['id'],
-                        $userInfo['name'],
-                        $userInfo['picture']
-                    ]);
-                    $userId = $conn->lastInsertId();
-                    $role = 'user';
-                }
-                
-                // Set session
-                $_SESSION['user_id'] = $userId;
-                $_SESSION['email'] = $userInfo['email'];
-                $_SESSION['full_name'] = $userInfo['name'];
-                $_SESSION['role'] = $role;
-                $_SESSION['avatar'] = $userInfo['picture'];
-                
-                // Redirect to dashboard
-                $redirectUrl = $role === 'admin' ? '../../admin-dashboard.html' : '../../dashboard.html';
-                header('Location: ' . $redirectUrl);
-                exit;
-                
-            } catch (PDOException $e) {
-                die('Database error: ' . $e->getMessage());
-            }
-        }
+    if (empty($email) || empty($google_id)) {
+        echo json_encode(array(
+            "success" => false,
+            "message" => "Dữ liệu từ Google không hợp lệ!"
+        ));
+        exit();
     }
     
-    // If error, redirect to login
-    header('Location: ../../login.html?error=google_auth_failed');
-    exit;
+    // Kiểm tra user đã tồn tại trong database chưa
+    $query = "SELECT id, fullname, email, avatar, role, created_at 
+              FROM users WHERE email = :email LIMIT 1";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(":email", $email);
+    $stmt->execute();
+    
+    if ($stmt->rowCount() > 0) {
+        // TRƯỜNG HỢP 1: User ĐÃ TỒN TẠI -> Thực hiện Đăng nhập
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Cập nhật avatar mới nhất và thời gian đăng nhập
+        $update_query = "UPDATE users SET avatar = :avatar, last_login = NOW() WHERE id = :id";
+        $update_stmt = $db->prepare($update_query);
+        $update_stmt->bindParam(":avatar", $avatar);
+        $update_stmt->bindParam(":id", $row['id']);
+        $update_stmt->execute();
+        
+        $token = bin2hex(random_bytes(32)); // Tạo token giả lập session
+        
+        echo json_encode(array(
+            "success" => true,
+            "message" => "Đăng nhập Google thành công!",
+            "token" => $token,
+            "user" => array(
+                "id" => $row['id'],
+                "fullname" => $row['fullname'],
+                "email" => $row['email'],
+                "avatar" => $avatar,
+                "role" => $row['role'],
+                "created_at" => $row['created_at']
+            )
+        ));
+    } else {
+        // TRƯỜNG HỢP 2: User CHƯA TỒN TẠI -> Tự động Đăng ký mới
+        $query = "INSERT INTO users (fullname, email, avatar, google_id, role, created_at) 
+                  VALUES (:fullname, :email, :avatar, :google_id, 'user', NOW())";
+        
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(":fullname", $fullname);
+        $stmt->bindParam(":email", $email);
+        $stmt->bindParam(":avatar", $avatar);
+        $stmt->bindParam(":google_id", $google_id);
+        
+        if ($stmt->execute()) {
+            $user_id = $db->lastInsertId();
+            $token = bin2hex(random_bytes(32));
+            
+            echo json_encode(array(
+                "success" => true,
+                "message" => "Tạo tài khoản qua Google thành công!",
+                "token" => $token,
+                "user" => array(
+                    "id" => $user_id,
+                    "fullname" => $fullname,
+                    "email" => $email,
+                    "avatar" => $avatar,
+                    "role" => "user",
+                    "created_at" => date('Y-m-d H:i:s')
+                )
+            ));
+        } else {
+            echo json_encode(array(
+                "success" => false,
+                "message" => "Lỗi CSDL: Không thể tạo tài khoản!"
+            ));
+        }
+    }
+} else {
+    echo json_encode(array(
+        "success" => false,
+        "message" => "Invalid request method"
+    ));
 }
-
-// If no code, redirect to login
-header('Location: ../../login.html');
-exit;
 ?>

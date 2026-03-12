@@ -1,84 +1,139 @@
-// CẤU HÌNH API (Trỏ về XAMPP)
-const API_URL = 'http://localhost/EANH/backend/auth'; 
+// Auth.js - Xử lý đăng nhập và đăng ký
 
-function showAlert(message, type = 'danger') {
-    const alertBox = document.getElementById('alertBox');
-    if (!alertBox) return;
-    alertBox.innerHTML = `<div class="alert alert-${type}" style="padding:10px; margin-bottom:10px; background:${type==='success'?'#d4edda':'#f8d7da'}; color:${type==='success'?'#155724':'#721c24'}; border-radius:5px; text-align:center;">${message}</div>`;
-    setTimeout(() => { alertBox.innerHTML = ''; }, 3000);
+// Hàm hiển thị thông báo
+function showMessage(message, type = 'error') {
+    const messageDiv = document.getElementById(type + 'Message');
+    if (messageDiv) {
+        messageDiv.textContent = message;
+        messageDiv.style.display = 'block';
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 5000);
+    } else {
+        alert(message); // Backup nếu không tìm thấy thẻ div thông báo
+    }
 }
 
-// XỬ LÝ ĐĂNG KÝ
+// Xử lý đăng ký bằng Form thường
 const registerForm = document.getElementById('registerForm');
 if (registerForm) {
-    registerForm.addEventListener('submit', async (e) => {
+    registerForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        const btn = document.getElementById('registerBtn');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '⏳...'; btn.disabled = true;
-
-        const fullName = document.getElementById('fullName').value;
+        const fullname = document.getElementById('fullname').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
-
+        
+        if (password !== confirmPassword) {
+            showMessage('Mật khẩu xác nhận không khớp!', 'error');
+            return;
+        }
+        if (password.length < 6) {
+            showMessage('Mật khẩu phải có ít nhất 6 ký tự!', 'error');
+            return;
+        }
+        
         try {
-            if (password !== confirmPassword) throw new Error('Mật khẩu không khớp!');
+            const formData = new FormData();
+            formData.append('fullname', fullname);
+            formData.append('email', email);
+            formData.append('password', password);
             
-            const response = await fetch(`${API_URL}/register.php`, {
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ full_name: fullName, email, password, confirm_password: confirmPassword })
-            });
+            const response = await fetch('backend/auth/register.php', { method: 'POST', body: formData });
             const data = await response.json();
-
+            
             if (data.success) {
-                showAlert('Đăng ký thành công!', 'success');
-                // Lưu tạm thông tin để vào dashboard luôn không cần login lại
-                localStorage.setItem('user_info', JSON.stringify(data.user));
-                setTimeout(() => window.location.href = 'dashboard.html', 1000);
-            } else { throw new Error(data.message); }
-        } catch (err) { showAlert(err.message || 'Lỗi kết nối', 'danger'); } 
-        finally { btn.innerHTML = originalText; btn.disabled = false; }
+                showMessage('Đăng ký thành công! Đang chuyển hướng...', 'success');
+                setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+            } else {
+                showMessage(data.message || 'Đăng ký thất bại!', 'error');
+            }
+        } catch (error) {
+            showMessage('Lỗi kết nối Server. Vui lòng thử lại!', 'error');
+            console.error(error);
+        }
     });
 }
 
-// XỬ LÝ ĐĂNG NHẬP
+// Xử lý đăng nhập bằng Form thường
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
+    loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        const btn = document.getElementById('loginBtn');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '⏳...'; btn.disabled = true;
-
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-
+        
         try {
-            const response = await fetch(`${API_URL}/login.php`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
+            const formData = new FormData();
+            formData.append('email', email);
+            formData.append('password', password);
             
-            // Xử lý lỗi nếu server trả về HTML (lỗi PHP)
-            const text = await response.text();
-            let data;
-            try { data = JSON.parse(text); } catch(e) { throw new Error('Lỗi Server: ' + text); }
-
+            const response = await fetch('backend/auth/login.php', { method: 'POST', body: formData });
+            const data = await response.json();
+            
             if (data.success) {
-                showAlert('Đăng nhập thành công!', 'success');
-                
-                // QUAN TRỌNG: Lưu thông tin vào LocalStorage để Dashboard đọc được
-                localStorage.setItem('user_info', JSON.stringify(data.user));
-                
-                setTimeout(() => { 
-                    // Chuyển hướng bằng đường dẫn tương đối
-                    window.location.href = 'dashboard.html'; 
-                }, 1000);
-            } else { throw new Error(data.message); }
-        } catch (err) { showAlert(err.message, 'danger'); } 
-        finally { btn.innerHTML = originalText; btn.disabled = false; }
+                localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('token', data.token);
+                showMessage('Đăng nhập thành công!', 'success');
+                setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
+            } else {
+                showMessage(data.message || 'Đăng nhập thất bại!', 'error');
+            }
+        } catch (error) {
+            showMessage('Lỗi kết nối Server!', 'error');
+            console.error(error);
+        }
     });
+}
+
+// ==========================================
+// XỬ LÝ ĐĂNG NHẬP / ĐĂNG KÝ VỚI GOOGLE
+// ==========================================
+async function loginWithGoogle(email, fullname, avatar, google_id) {
+    try {
+        const formData = new FormData();
+        formData.append('email', email);
+        formData.append('fullname', fullname);
+        formData.append('avatar', avatar);
+        formData.append('google_id', google_id);
+        
+        const response = await fetch('backend/auth/google-login.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('token', data.token);
+            
+            showMessage(data.message, 'success'); // Hiển thị "Đăng nhập..." hoặc "Tạo tài khoản..."
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1000);
+        } else {
+            showMessage(data.message || 'Đăng nhập Google thất bại!', 'error');
+        }
+    } catch (error) {
+        showMessage('Lỗi kết nối Database!', 'error');
+        console.error('Google Server Error:', error);
+    }
+}
+
+// Kiểm tra authentication bảo vệ trang
+function checkAuth() {
+    const user = localStorage.getItem('user');
+    if (!user) {
+        window.location.href = 'login.html';
+        return null;
+    }
+    return JSON.parse(user);
+}
+
+// Đăng xuất
+function logout() {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    window.location.href = 'login.html';
 }

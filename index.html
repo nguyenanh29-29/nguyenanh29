@@ -3,196 +3,352 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EAnh - Nền tảng học tiếng Anh trực tuyến</title>
+    <title>EAnh - Học Tiếng Anh Hiệu Quả</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, body { font-family: 'Outfit', sans-serif; }
+
+        :root {
+            --ink: #05080f;
+            --ink2: #090d18;
+            --glow: rgba(99,102,241,0.18);
+            --line: rgba(255,255,255,0.055);
+        }
+
+        body { background: var(--ink); overflow-x: hidden; }
+
+        /* ── GRID BACKGROUND ── */
+        .grid-bg {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image:
+                linear-gradient(var(--line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--line) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+        }
+
+        /* ── NAV ── */
+        .site-nav {
+            position: sticky; top: 0; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1.2rem 6%;
+            background: rgba(5,8,15,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--line);
+        }
+        .nav-logo {
+            font-size: 1.6rem; font-weight: 900; letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 40%, #a5b4fc);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; padding: 0.5rem 1rem; font-size: 1rem; border-radius: 8px; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--text); }
+
+        /* Ghost button */
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            color: var(--text) !important;
+            padding: 0.55rem 1.4rem !important;
+            border-radius: 10px;
+            font-size: 1rem; font-weight: 600;
+            text-decoration: none;
+            transition: all 0.25s;
+        }
+        .btn-ghost:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.3); }
+
+        /* Glow button */
+        .btn-glow {
+            position: relative; overflow: hidden;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff !important; border: none;
+            padding: 0.6rem 1.6rem !important;
+            border-radius: 10px; font-size: 1rem; font-weight: 700;
+            text-decoration: none; cursor: pointer;
+            box-shadow: 0 0 20px rgba(99,102,241,0.35), 0 4px 15px rgba(0,0,0,0.4);
+            transition: all 0.3s;
+        }
+        .btn-glow::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.18) 50%, transparent 60%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+        .btn-glow:hover { box-shadow: 0 0 35px rgba(99,102,241,0.55), 0 8px 25px rgba(0,0,0,0.4); transform: translateY(-1px); }
+        .btn-glow:hover::after { transform: translateX(100%); }
+
+        /* ── HERO ── */
+        .hero {
+            position: relative; z-index: 1;
+            min-height: 92vh; display: flex; align-items: center; justify-content: center;
+            text-align: center; padding: 6rem 6% 5rem;
+        }
+        .hero-glow {
+            position: absolute; width: 700px; height: 700px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(99,102,241,0.13) 0%, transparent 65%);
+            top: 50%; left: 50%; transform: translate(-50%, -60%);
+            pointer-events: none;
+        }
+        .hero-inner { position: relative; z-index: 2; }
+
+        .hero-tag {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            border: 1px solid rgba(165,180,252,0.25);
+            background: rgba(99,102,241,0.1);
+            color: #a5b4fc; font-size: 0.9rem; font-weight: 600;
+            padding: 0.4rem 1.1rem; border-radius: 50px;
+            margin-bottom: 2rem; letter-spacing: 0.3px;
+            animation: fadeUp 0.6s ease both;
+        }
+        .hero-tag span { width: 6px; height: 6px; background: #818cf8; border-radius: 50%; display: inline-block; }
+
+        .hero h1 {
+            font-size: clamp(3rem, 7vw, 5.5rem); font-weight: 900;
+            line-height: 1.05; letter-spacing: -3px; color: var(--text);
+            margin-bottom: 1.5rem;
+            animation: fadeUp 0.6s 0.1s ease both;
+        }
+        .hero h1 em {
+            font-style: normal;
+            background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #818cf8 100%);
+            background-size: 200%;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            animation: shimmerText 4s linear infinite;
+        }
+        @keyframes shimmerText { 0% { background-position: 0% } 100% { background-position: 200% } }
+
+        .hero p {
+            font-size: 1.25rem; color: var(--text-muted); max-width: 500px;
+            margin: 0 auto 2.8rem; line-height: 1.8; font-weight: 400;
+            animation: fadeUp 0.6s 0.2s ease both;
+        }
+
+        .hero-cta {
+            display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+            margin-bottom: 5rem;
+            animation: fadeUp 0.6s 0.3s ease both;
+        }
+        .btn-hero {
+            position: relative; overflow: hidden;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff; border: none;
+            padding: 1rem 2.5rem; border-radius: 12px;
+            font-size: 1.1rem; font-weight: 700; font-family: 'Outfit', sans-serif;
+            cursor: pointer; text-decoration: none;
+            box-shadow: 0 0 30px rgba(99,102,241,0.4), 0 8px 30px rgba(0,0,0,0.5);
+            transition: all 0.3s;
+        }
+        .btn-hero::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
+            transform: translateX(-100%); transition: transform 0.7s ease;
+        }
+        .btn-hero:hover { box-shadow: 0 0 50px rgba(99,102,241,0.6), 0 12px 40px rgba(0,0,0,0.5); transform: translateY(-3px); }
+        .btn-hero:hover::after { transform: translateX(100%); }
+
+        .btn-hero-out {
+            background: transparent; border: 1px solid rgba(255,255,255,0.18);
+            color: var(--text); padding: 1rem 2.5rem; border-radius: 12px;
+            font-size: 1.1rem; font-weight: 600; font-family: 'Outfit', sans-serif;
+            cursor: pointer; text-decoration: none; transition: all 0.3s;
+        }
+        .btn-hero-out:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.35); }
+
+        /* Stats bar */
+        .stats-bar {
+            display: flex; max-width: 680px; width: 100%; margin: 0 auto;
+            background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 18px; overflow: hidden;
+            animation: fadeUp 0.6s 0.4s ease both;
+        }
+        .sb-item { flex: 1; padding: 1.8rem 1rem; text-align: center; position: relative; }
+        .sb-item:not(:last-child)::after {
+            content: ''; position: absolute; right: 0; top: 20%; height: 60%;
+            width: 1px; background: rgba(255,255,255,0.07);
+        }
+        .sb-num { font-size: 2.4rem; font-weight: 800; color: var(--text); letter-spacing: -1px; }
+        .sb-lbl { font-size: 0.95rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── FEATURES ── */
+        .features {
+            position: relative; z-index: 1;
+            padding: 7rem 6%; border-top: 1px solid var(--line);
+            background: linear-gradient(180deg, var(--ink) 0%, var(--ink2) 100%);
+        }
+        .features-head { text-align: center; margin-bottom: 4rem; }
+        .section-eyebrow {
+            display: inline-block; font-size: 0.8rem; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: #818cf8; margin-bottom: 1rem;
+        }
+        .features-head h2 {
+            font-size: clamp(2rem, 4vw, 3rem); font-weight: 800;
+            color: var(--text); letter-spacing: -1px; margin-bottom: 0.75rem;
+        }
+        .features-head p { font-size: 1.1rem; color: var(--text-muted); }
+
+        .feat-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 1.5rem; max-width: 1100px; margin: 0 auto;
+        }
+        .feat-card {
+            position: relative; overflow: hidden;
+            background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 18px; padding: 2.2rem;
+            transition: all 0.35s;
+        }
+        .feat-card::before {
+            content: ''; position: absolute; inset: 0; border-radius: 18px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.07), transparent 60%);
+            opacity: 0; transition: opacity 0.35s;
+        }
+        .feat-card:hover { border-color: rgba(99,102,241,0.35); transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 30px rgba(99,102,241,0.1); }
+        .feat-card:hover::before { opacity: 1; }
+
+        .feat-icon {
+            font-size: 2.4rem; margin-bottom: 1.2rem;
+            width: 56px; height: 56px;
+            background: rgba(99,102,241,0.12);
+            border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 14px; display: flex; align-items: center; justify-content: center;
+        }
+        .feat-card h3 { font-size: 1.2rem; font-weight: 700; color: var(--text); margin-bottom: 0.6rem; }
+        .feat-card p { font-size: 1rem; color: var(--text-muted); line-height: 1.7; }
+
+        /* ── CTA ── */
+        .cta-section {
+            position: relative; z-index: 1;
+            padding: 7rem 6%; text-align: center;
+            border-top: 1px solid var(--line);
+            overflow: hidden;
+        }
+        .cta-glow {
+            position: absolute; width: 800px; height: 400px;
+            background: radial-gradient(ellipse, rgba(99,102,241,0.12) 0%, transparent 70%);
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+        .cta-section h2 {
+            position: relative; font-size: clamp(2rem, 4vw, 3.2rem);
+            font-weight: 900; color: var(--text);
+            letter-spacing: -1.5px; margin-bottom: 1rem;
+        }
+        .cta-section p { position: relative; font-size: 1.15rem; color: var(--text-muted); margin-bottom: 2.5rem; }
+
+        /* ── FOOTER ── */
+        .site-footer {
+            position: relative; z-index: 1;
+            padding: 2.5rem 6%; background: #030508;
+            border-top: 1px solid var(--line); text-align: center;
+        }
+        .footer-logo {
+            font-size: 1.9rem; font-weight: 900; letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 40%, #a5b4fc);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            margin-bottom: 0.6rem;
+        }
+        .site-footer .footer-links { justify-content: center; margin-top: 0.75rem; }
+
+        @media (max-width: 600px) {
+            .nav-links a:not(.btn-ghost):not(.btn-glow) { display: none; }
+            .stats-bar { flex-direction: column; }
+            .sb-item:not(:last-child)::after { display: none; }
+        }
+    </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">EAnh</div>
-                <nav>
-                    <ul class="nav-menu">
-                        <li><a href="#features">Tính năng</a></li>
-                        <li><a href="#courses">Khóa học</a></li>
-                        <li><a href="#about">Về chúng tôi</a></li>
-                        <li><a href="login.html" class="btn btn-outline" style="padding: 0.5rem 1.5rem;">Đăng nhập</a></li>
-                        <li><a href="register.html" class="btn btn-primary" style="padding: 0.5rem 1.5rem;">Đăng ký</a></li>
-                    </ul>
-                </nav>
-            </div>
+<div class="grid-bg"></div>
+
+<!-- NAV -->
+<nav class="site-nav">
+    <div class="nav-logo">🎓 EAnh</div>
+    <div class="nav-links">
+        <a href="index.html">Trang chủ</a>
+        <a href="#features">Tính năng</a>
+        <a href="login.html" class="btn-ghost">Đăng nhập</a>
+        <a href="register.html" class="btn-glow">Đăng ký</a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-inner">
+        <div class="hero-tag"><span></span> Nền tảng học tiếng Anh toàn diện</div>
+        <h1>Chinh phục<br>Tiếng Anh<br><em>cùng EAnh</em></h1>
+        <p>Hệ thống học từ <strong style="color:var(--text);">A1 đến C2</strong> — từ vựng, ngữ pháp, nghe, nói, đọc, viết trong một nơi duy nhất.</p>
+        <div class="hero-cta">
+            <a href="register.html" class="btn-hero">🚀 Bắt đầu miễn phí</a>
+            <a href="#features" class="btn-hero-out">Tìm hiểu thêm →</a>
         </div>
-    </header>
-
-    <!-- Hero Section -->
-    <section style="padding: 6rem 0; text-align: center;">
-        <div class="container">
-            <h1 style="font-size: 3.5rem; margin-bottom: 1.5rem; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                Học tiếng Anh thông minh<br>Chinh phục mọi kỳ thi
-            </h1>
-            <p style="font-size: 1.25rem; color: var(--text-gray); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
-                Nền tảng học tiếng Anh trực tuyến với hàng nghìn bài học, đề thi thử TOEIC, IELTS và nhiều hơn nữa
-            </p>
-            <div style="display: flex; gap: 1rem; justify-content: center;">
-                <a href="register.html" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2.5rem;">
-                    Bắt đầu miễn phí
-                </a>
-                <a href="#features" class="btn btn-outline" style="font-size: 1.1rem; padding: 1rem 2.5rem;">
-                    Tìm hiểu thêm
-                </a>
-            </div>
-
-            <!-- Stats -->
-            <div class="stats-grid" style="margin-top: 4rem; max-width: 800px; margin-left: auto; margin-right: auto;">
-                <div>
-                    <div class="stat-value" style="color: var(--primary);">10,000+</div>
-                    <div class="stat-label">Học viên</div>
-                </div>
-                <div>
-                    <div class="stat-value" style="color: var(--success);">5,000+</div>
-                    <div class="stat-label">Bài học</div>
-                </div>
-                <div>
-                    <div class="stat-value" style="color: var(--warning);">100+</div>
-                    <div class="stat-label">Đề thi thử</div>
-                </div>
-                <div>
-                    <div class="stat-value" style="color: var(--accent);">4.8/5</div>
-                    <div class="stat-label">Đánh giá</div>
-                </div>
-            </div>
+        <div class="stats-bar">
+            <div class="sb-item"><div class="sb-num">1,000+</div><div class="sb-lbl">Từ vựng</div></div>
+            <div class="sb-item"><div class="sb-num">4</div><div class="sb-lbl">Kỹ năng</div></div>
+            <div class="sb-item"><div class="sb-num">100+</div><div class="sb-lbl">Đề thi thử</div></div>
+            <div class="sb-item"><div class="sb-num">A1–C2</div><div class="sb-lbl">6 cấp độ</div></div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Features -->
-    <section id="features" style="padding: 4rem 0;">
-        <div class="container">
-            <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem;">
-                Tại sao chọn EAnh?
-            </h2>
+<!-- FEATURES -->
+<section id="features" class="features">
+    <div class="features-head">
+        <div class="section-eyebrow">✦ Tính năng</div>
+        <h2>Mọi kỹ năng bạn cần</h2>
+        <p>Hệ thống bài học thiết kế bởi chuyên gia ngôn ngữ</p>
+    </div>
+    <div class="feat-grid">
+        <div class="feat-card"><div class="feat-icon">📚</div><h3>Từ vựng phong phú</h3><p>Phân loại theo chủ đề và cấp độ, giúp ghi nhớ hiệu quả và bền vững.</p></div>
+        <div class="feat-card"><div class="feat-icon">✏️</div><h3>Ngữ pháp chi tiết</h3><p>Lý thuyết rõ ràng kèm bài tập thực hành từ cơ bản đến nâng cao.</p></div>
+        <div class="feat-card"><div class="feat-icon">🎧</div><h3>Luyện nghe hiệu quả</h3><p>Bài nghe đa dạng với nhiều giọng đọc, luyện phản xạ tự nhiên.</p></div>
+        <div class="feat-card"><div class="feat-icon">📖</div><h3>Đọc hiểu chuyên sâu</h3><p>Bài đọc đa chủ đề kèm câu hỏi kiểm tra kỹ năng phân tích văn bản.</p></div>
+        <div class="feat-card"><div class="feat-icon">✍️</div><h3>Luyện viết nâng cao</h3><p>Hướng dẫn viết từ cơ bản đến học thuật, có mẫu và phản hồi chi tiết.</p></div>
+        <div class="feat-card"><div class="feat-icon">🎤</div><h3>Thực hành nói</h3><p>Luyện phát âm và giao tiếp theo chủ đề với phản hồi thông minh tức thì.</p></div>
+    </div>
+</section>
 
-            <div class="grid grid-3">
-                <div class="card">
-                    <div style="font-size: 3rem; margin-bottom: 1rem; text-align: center;">📚</div>
-                    <h3 class="card-title">Học từ vựng hiệu quả</h3>
-                    <p style="color: var(--text-gray);">
-                        Flashcard thông minh, phân loại theo chủ đề và cấp độ. Ghi nhớ từ vựng nhanh chóng với phương pháp khoa học.
-                    </p>
-                </div>
+<!-- CTA -->
+<section class="cta-section">
+    <div class="cta-glow"></div>
+    <h2>Sẵn sàng bắt đầu<br>hành trình của bạn?</h2>
+    <p>Tham gia cùng hàng nghìn học viên đã thành công với EAnh</p>
+    <a href="register.html" class="btn-hero">🎓 Đăng ký ngay miễn phí</a>
+</section>
 
-                <div class="card">
-                    <div style="font-size: 3rem; margin-bottom: 1rem; text-align: center;">🎧</div>
-                    <h3 class="card-title">Luyện nghe chuyên sâu</h3>
-                    <p style="color: var(--text-gray);">
-                        Hàng trăm bài luyện nghe từ cơ bản đến nâng cao. Transcript và câu hỏi chi tiết giúp cải thiện kỹ năng.
-                    </p>
-                </div>
+<!-- FOOTER -->
+<footer class="site-footer">
+    <div class="footer-logo">🎓 EAnh</div>
+    <p style="color:var(--text-muted); font-size:1rem;">© 2024 EAnh. All rights reserved.</p>
+    <div class="footer-links">
+        <a href="#" class="link">Điều khoản</a>
+        <a href="#" class="link">Chính sách</a>
+        <a href="#" class="link">Liên hệ</a>
+    </div>
+</footer>
 
-                <div class="card">
-                    <div style="font-size: 3rem; margin-bottom: 1rem; text-align: center;">📝</div>
-                    <h3 class="card-title">Thi thử TOEIC/IELTS</h3>
-                    <p style="color: var(--text-gray);">
-                        Đề thi thử chính thức, chấm điểm tự động. Phân tích chi tiết giúp bạn biết điểm mạnh/yếu.
-                    </p>
-                </div>
-
-                <div class="card">
-                    <div style="font-size: 3rem; margin-bottom: 1rem; text-align: center;">✍️</div>
-                    <h3 class="card-title">Luyện viết & nói</h3>
-                    <p style="color: var(--text-gray);">
-                        Thực hành viết essay, email. Ghi âm và luyện phát âm với nhiều chủ đề đa dạng.
-                    </p>
-                </div>
-
-                <div class="card">
-                    <div style="font-size: 3rem; margin-bottom: 1rem; text-align: center;">📊</div>
-                    <h3 class="card-title">Theo dõi tiến độ</h3>
-                    <p style="color: var(--text-gray);">
-                        Thống kê chi tiết về quá trình học tập. Biểu đồ trực quan giúp bạn nắm rõ năng lực.
-                    </p>
-                </div>
-
-                <div class="card">
-                    <div style="font-size: 3rem; margin-bottom: 1rem; text-align: center;">🎯</div>
-                    <h3 class="card-title">Lộ trình cá nhân</h3>
-                    <p style="color: var(--text-gray);">
-                        Hệ thống đề xuất bài học phù hợp với trình độ và mục tiêu của bạn.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Courses -->
-    <section id="courses" style="padding: 4rem 0; background: rgba(0,0,0,0.2);">
-        <div class="container">
-            <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem;">
-                Các khóa học phổ biến
-            </h2>
-
-            <div class="grid grid-2">
-                <div class="card">
-                    <h3 class="card-title">🏆 TOEIC Full Course</h3>
-                    <p style="color: var(--text-gray); margin-bottom: 1rem;">
-                        Khóa học toàn diện cho kỳ thi TOEIC. Bao gồm Listening và Reading với đầy đủ chiến thuật làm bài.
-                    </p>
-                    <ul style="color: var(--text-gray); margin-bottom: 1.5rem; list-style: none; padding: 0;">
-                        <li>✓ 200+ bài học từ vựng</li>
-                        <li>✓ 50+ đề thi thử</li>
-                        <li>✓ Giải thích chi tiết từng câu</li>
-                        <li>✓ Cam kết 750+ điểm</li>
-                    </ul>
-                    <a href="register.html" class="btn btn-primary" style="width: 100%;">Đăng ký ngay</a>
-                </div>
-
-                <div class="card">
-                    <h3 class="card-title">🌟 IELTS Academic</h3>
-                    <p style="color: var(--text-gray); margin-bottom: 1rem;">
-                        Khóa học IELTS 4 kỹ năng. Luyện tập intensive với giáo trình Cambridge chuẩn quốc tế.
-                    </p>
-                    <ul style="color: var(--text-gray); margin-bottom: 1.5rem; list-style: none; padding: 0;">
-                        <li>✓ Luyện 4 kỹ năng đầy đủ</li>
-                        <li>✓ 30+ đề thi thử Cambridge</li>
-                        <li>✓ Chữa bài Writing chi tiết</li>
-                        <li>✓ Cam kết 6.5+ band</li>
-                    </ul>
-                    <a href="register.html" class="btn btn-primary" style="width: 100%;">Đăng ký ngay</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA -->
-    <section style="padding: 4rem 0; text-align: center;">
-        <div class="container">
-            <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem;">
-                Sẵn sàng bắt đầu học?
-            </h2>
-            <p style="font-size: 1.25rem; color: var(--text-gray); margin-bottom: 2rem;">
-                Tham gia cùng hàng nghìn học viên đang học tiếng Anh mỗi ngày
-            </p>
-            <a href="register.html" class="btn btn-primary" style="font-size: 1.2rem; padding: 1rem 3rem;">
-                Đăng ký miễn phí ngay
-            </a>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer style="padding: 2rem 0; border-top: 1px solid var(--border); margin-top: 4rem;">
-        <div class="container">
-            <div style="text-align: center; color: var(--text-gray);">
-                <div class="logo" style="margin-bottom: 1rem; font-size: 2rem;">EAnh</div>
-                <p>© 2025 EAnh. All rights reserved.</p>
-                <p style="margin-top: 0.5rem;">
-                    <a href="#" style="color: var(--text-gray); text-decoration: none; margin: 0 1rem;">Điều khoản</a>
-                    <a href="#" style="color: var(--text-gray); text-decoration: none; margin: 0 1rem;">Chính sách</a>
-                    <a href="#" style="color: var(--text-gray); text-decoration: none; margin: 0 1rem;">Liên hệ</a>
-                </p>
-            </div>
-        </div>
-    </footer>
-
-    <script src="assets/js/main.js"></script>
+<script src="assets/js/main.js"></script>
+<script>
+    // Scroll reveal
+    const cards = document.querySelectorAll('.feat-card');
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach((e, i) => {
+            if (e.isIntersecting) {
+                e.target.style.animation = `fadeUp 0.5s ${i * 0.08}s ease both`;
+                io.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    cards.forEach(c => { c.style.opacity = '0'; io.observe(c); });
+</script>
 </body>
 </html>

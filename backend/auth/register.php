@@ -1,68 +1,89 @@
 <?php
+// register.php - Xử lý đăng ký tài khoản
+
 require_once '../config/db.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    sendJSON(['success' => false, 'message' => 'Method not allowed'], 405);
-}
+// Tạo database nếu chưa có
+Database::createDatabase();
 
-// Lấy dữ liệu (Hỗ trợ cả JSON và Form Post)
-$data = getInputData();
+$database = new Database();
+$db = $database->getConnection();
 
-$email = $data['email'] ?? '';
-$password = $data['password'] ?? '';
-$confirmPassword = $data['confirm_password'] ?? '';
-$fullName = $data['full_name'] ?? '';
-
-// Validate input
-if (empty($email) || empty($password) || empty($confirmPassword) || empty($fullName)) {
-    sendJSON(['success' => false, 'message' => 'Vui lòng nhập đầy đủ thông tin (Email, Mật khẩu, Tên)']);
-}
-
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    sendJSON(['success' => false, 'message' => 'Định dạng Email không hợp lệ']);
-}
-
-if (strlen($password) < 6) {
-    sendJSON(['success' => false, 'message' => 'Mật khẩu phải có ít nhất 6 ký tự']);
-}
-
-if ($password !== $confirmPassword) {
-    sendJSON(['success' => false, 'message' => 'Mật khẩu xác nhận không khớp']);
-}
-
-try {
-    // Kiểm tra email tồn tại
-    $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-    $stmt->execute([$email]);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-    if ($stmt->fetch()) {
-        sendJSON(['success' => false, 'message' => 'Email này đã được sử dụng. Vui lòng chọn email khác.']);
+    $fullname = isset($_POST['fullname']) ? trim($_POST['fullname']) : '';
+    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+    $password = isset($_POST['password']) ? $_POST['password'] : '';
+    
+    // Validate
+    if (empty($fullname) || empty($email) || empty($password)) {
+        echo json_encode(array(
+            "success" => false,
+            "message" => "Vui lòng điền đầy đủ thông tin!"
+        ));
+        exit();
     }
     
-    // Hash password
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo json_encode(array(
+            "success" => false,
+            "message" => "Email không hợp lệ!"
+        ));
+        exit();
+    }
     
-    // Insert user
-    $stmt = $conn->prepare("INSERT INTO users (email, password, full_name, role) VALUES (?, ?, ?, 'user')");
-    if ($stmt->execute([$email, $hashedPassword, $fullName])) {
-        $userId = $conn->lastInsertId();
+    if (strlen($password) < 6) {
+        echo json_encode(array(
+            "success" => false,
+            "message" => "Mật khẩu phải có ít nhất 6 ký tự!"
+        ));
+        exit();
+    }
+    
+    // Kiểm tra email đã tồn tại
+    $query = "SELECT id FROM users WHERE email = :email LIMIT 1";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(":email", $email);
+    $stmt->execute();
+    
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(array(
+            "success" => false,
+            "message" => "Email đã được sử dụng!"
+        ));
+        exit();
+    }
+    
+    // Mã hóa mật khẩu
+    $password_hash = password_hash($password, PASSWORD_BCRYPT);
+    
+    // Thêm user mới
+    $query = "INSERT INTO users (fullname, email, password, role, created_at) 
+              VALUES (:fullname, :email, :password, 'user', NOW())";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(":fullname", $fullname);
+    $stmt->bindParam(":email", $email);
+    $stmt->bindParam(":password", $password_hash);
+    
+    if ($stmt->execute()) {
+        $user_id = $db->lastInsertId();
         
-        // Auto login sau khi đăng ký
-        $_SESSION['user_id'] = $userId;
-        $_SESSION['email'] = $email;
-        $_SESSION['full_name'] = $fullName;
-        $_SESSION['role'] = 'user';
-        
-        sendJSON([
-            'success' => true,
-            'message' => 'Đăng ký thành công!',
-            'redirect' => 'dashboard.html'
-        ]);
+        echo json_encode(array(
+            "success" => true,
+            "message" => "Đăng ký thành công!",
+            "user_id" => $user_id
+        ));
     } else {
-        throw new Exception("Không thể thêm user vào CSDL");
+        echo json_encode(array(
+            "success" => false,
+            "message" => "Đăng ký thất bại. Vui lòng thử lại!"
+        ));
     }
-    
-} catch (Exception $e) {
-    sendJSON(['success' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()], 500);
+} else {
+    echo json_encode(array(
+        "success" => false,
+        "message" => "Invalid request method"
+    ));
 }
 ?>

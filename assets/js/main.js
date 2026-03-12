@@ -1,150 +1,236 @@
-// Check authentication on protected pages
-function checkAuth() {
-    const protectedPages = [
-        'dashboard.html',
-        'vocabulary.html',
-        'grammar.html',
-        'listening.html',
-        'reading.html',
-        'writing.html',
-        'speaking.html',
-        'mock-test.html',
-        'result.html',
-        'profile.html'
-    ];
-    
-    const currentPage = window.location.pathname.split('/').pop();
-    
-    if (protectedPages.includes(currentPage)) {
-        fetch('backend/api/profile.php')
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) {
-                    window.location.href = 'login.html';
-                }
-            })
-            .catch(() => {
-                window.location.href = 'login.html';
-            });
-    }
-}
+// Main.js - JavaScript chung cho toàn bộ ứng dụng
 
-// Smooth scroll
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth'
-            });
+// API Base URL
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost/EAnh/backend'
+    : '/backend';
+
+// Hàm gọi API chung
+async function apiCall(endpoint, method = 'GET', data = null) {
+    const token = localStorage.getItem('token');
+    const options = {
+        method: method,
+        headers: {}
+    };
+
+    if (token) {
+        options.headers['Authorization'] = 'Bearer ' + token;
+    }
+
+    if (data) {
+        if (data instanceof FormData) {
+            options.body = data;
+        } else {
+            options.headers['Content-Type'] = 'application/json';
+            options.body = JSON.stringify(data);
         }
-    });
-});
+    }
 
-// Mobile menu toggle (if needed)
-function toggleMobileMenu() {
-    const menu = document.querySelector('.nav-menu');
-    if (menu) {
-        menu.classList.toggle('active');
+    try {
+        const response = await fetch(API_BASE_URL + endpoint, options);
+        return await response.json();
+    } catch (error) {
+        console.error('API Error:', error);
+        throw error;
     }
 }
 
-// Format date
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
+// Hiển thị loading
+function showLoading(element) {
+    if (element) {
+        element.innerHTML = '<div class="loading">Đang tải...</div>';
+    }
 }
 
-// Format time
+// Ẩn loading
+function hideLoading(element) {
+    if (element) {
+        const loading = element.querySelector('.loading');
+        if (loading) loading.remove();
+    }
+}
+
+// Format thời gian
 function formatTime(seconds) {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
     
     if (hours > 0) {
-        return `${hours}h ${minutes}m`;
-    } else if (minutes > 0) {
-        return `${minutes}m ${secs}s`;
-    } else {
-        return `${secs}s`;
+        return `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
     }
+    return `${minutes}:${String(secs).padStart(2, '0')}`;
 }
 
-// Show notification
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `alert alert-${type}`;
-    notification.style.position = 'fixed';
-    notification.style.top = '20px';
-    notification.style.right = '20px';
-    notification.style.zIndex = '1000';
-    notification.style.minWidth = '300px';
-    notification.textContent = message;
+// Format ngày tháng
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+// Hiển thị thông báo toast
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
     
-    document.body.appendChild(notification);
+    const colors = {
+        success: '#10b981',
+        error: '#ef4444',
+        warning: '#f59e0b',
+        info: '#6366f1'
+    };
+    
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: ${colors[type] || colors.info};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        z-index: 9999;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    document.body.appendChild(toast);
     
     setTimeout(() => {
-        notification.remove();
-    }, 5000);
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
 
-// Loading spinner
-function showLoading() {
-    const loader = document.createElement('div');
-    loader.id = 'globalLoader';
-    loader.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.8);
+// Thêm CSS cho animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+    }
+    
+    .loading {
         display: flex;
-        align-items: center;
         justify-content: center;
-        z-index: 9999;
-    `;
-    loader.innerHTML = '<div class="loading" style="width: 50px; height: 50px; border-width: 5px;"></div>';
-    document.body.appendChild(loader);
-}
+        align-items: center;
+        padding: 2rem;
+        color: var(--text-muted);
+    }
+    
+    .loading::after {
+        content: '';
+        width: 30px;
+        height: 30px;
+        margin-left: 10px;
+        border: 3px solid var(--border);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
 
-function hideLoading() {
-    const loader = document.getElementById('globalLoader');
-    if (loader) {
-        loader.remove();
+// Xử lý smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Lưu tiến độ học tập
+async function saveProgress(type, data) {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) return;
+
+    try {
+        const progressData = {
+            userId: user.id,
+            type: type,
+            data: JSON.stringify(data),
+            timestamp: new Date().toISOString()
+        };
+
+        const response = await apiCall('/api/result.php?action=saveProgress', 'POST', progressData);
+        return response;
+    } catch (error) {
+        console.error('Error saving progress:', error);
     }
 }
 
-// Debounce function
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
+// Lấy tiến độ học tập
+async function getProgress(type) {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) return null;
+
+    try {
+        const response = await apiCall(`/api/result.php?action=getProgress&userId=${user.id}&type=${type}`);
+        return response;
+    } catch (error) {
+        console.error('Error getting progress:', error);
+        return null;
+    }
 }
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-    checkAuth();
-});
+// Kiểm tra quyền truy cập trang
+function checkPageAccess() {
+    const currentPage = window.location.pathname;
+    const publicPages = ['index.html', 'login.html', 'register.html', 'admin-login.html', '/'];
+    
+    const isPublicPage = publicPages.some(page => currentPage.includes(page) || currentPage === '/');
+    
+    if (!isPublicPage) {
+        const user = localStorage.getItem('user');
+        if (!user) {
+            window.location.href = '/login.html';
+        }
+    }
+}
 
-// Export functions for use in other scripts
-window.EAnh = {
-    checkAuth,
-    formatDate,
-    formatTime,
-    showNotification,
-    showLoading,
-    hideLoading,
-    debounce
-};
+// Gọi kiểm tra khi trang load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkPageAccess);
+} else {
+    checkPageAccess();
+}
+
+// Export functions for global use
+window.apiCall = apiCall;
+window.showToast = showToast;
+window.showLoading = showLoading;
+window.hideLoading = hideLoading;
+window.formatTime = formatTime;
+window.formatDate = formatDate;
+window.saveProgress = saveProgress;
+window.getProgress = getProgress;

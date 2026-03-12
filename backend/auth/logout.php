@@ -1,13 +1,20 @@
 <?php
+// logout.php - Xử lý đăng xuất
+
 require_once '../config/db.php';
 
-// Destroy session
+// Xóa tất cả session
+session_start();
+session_unset();
 session_destroy();
 
-// Clear session variables
-$_SESSION = [];
+// Xóa cookies nếu có
+if (isset($_COOKIE['remember_token'])) {
+    setcookie('remember_token', '', time() - 3600, '/');
+}
 
-// Redirect to login page
-header('Location: ../../login.html');
-exit;
+echo json_encode(array(
+    "success" => true,
+    "message" => "Đã đăng xuất thành công!"
+));
 ?>

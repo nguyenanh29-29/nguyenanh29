@@ -1,3 +1,4 @@
+speaking.php - Tương tự, chỉ thay 'writing' bằng 'speaking'
 <?php
 require_once '../config/db.php';
 $database = new Database();
@@ -6,22 +7,21 @@ $db = $database->getConnection();
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (isset($_GET['id'])) {
         $id = $_GET['id'];
-        $stmt = $db->prepare("SELECT * FROM reading WHERE id = :id");
+        $stmt = $db->prepare("SELECT * FROM speaking WHERE id = :id");
         $stmt->bindParam(":id", $id);
         $stmt->execute();
-        echo json_encode(["success" => true, "reading" => $stmt->fetch(PDO::FETCH_ASSOC)]);
+        echo json_encode(["success" => true, "speaking" => $stmt->fetch(PDO::FETCH_ASSOC)]);
     } else {
         $level = isset($_GET['level']) ? $_GET['level'] : '';
-        $category = isset($_GET['category']) ? $_GET['category'] : '';
-        $query = "SELECT * FROM reading WHERE 1=1";
+        $query = "SELECT * FROM speaking WHERE 1=1";
         if ($level) $query .= " AND level = :level";
-        if ($category) $query .= " AND category = :category";
         $query .= " ORDER BY created_at DESC LIMIT 50";
         $stmt = $db->prepare($query);
         if ($level) $stmt->bindParam(":level", $level);
-        if ($category) $stmt->bindParam(":category", $category);
         $stmt->execute();
-        echo json_encode(["success" => true, "reading" => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+        echo json_encode(["success" => true, "speaking" => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     }
 }
+?>
+*/
 ?>

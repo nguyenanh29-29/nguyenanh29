@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi tiết bảo trì - EAnh.</title>
     <style>
         :root {
@@ -14,9 +14,10 @@
             --text-muted: #b3b3b3;
         }
 
-        /* đảm bảo chiều cao đầy đủ để cuộn hoạt động trên mobile */
-        html, body {
+        /* FIX SCROLL MOBILE */
+        html {
             height: 100%;
+            overflow-y: auto;
         }
 
         * {
@@ -30,20 +31,18 @@
             background: var(--bg-gradient);
             color: var(--text-main);
             min-height: 100vh;
-            /* cho phép cuộn dọc nếu nội dung vượt */
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch; /* mượt trên iOS */
+            min-height: 100dvh; /* FIX CHÍNH: Dùng dynamic viewport để mobile không bị cắt scroll */
             padding: 20px;
             display: flex;
             flex-direction: column;
-            align-items: center; /* giữ container giữa trang trên desktop */
+            align-items: center;
+            overflow-y: auto; /* Đảm bảo body luôn có thể cuộn */
+            -webkit-overflow-scrolling: touch; /* Scroll mượt trên iOS/Android */
         }
 
-        /* container trung tâm, dùng margin auto để responsive ổn */
         .container {
             width: 100%;
             max-width: 800px;
-            margin: 0 auto;
         }
 
         /* Header & Info */
@@ -92,9 +91,7 @@
             box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4);
         }
 
-        /* -----------------------------------------
-           CÁC PHẦN DÀNH RIÊNG CHO ADMIN (MẶC ĐỊNH ẨN)
-           ----------------------------------------- */
+        /* ----------------------------------------- CÁC PHẦN DÀNH RIÊNG CHO ADMIN (MẶC ĐỊNH ẨN) ----------------------------------------- */
         .admin-panel, .log-actions {
             display: none;
         }
@@ -139,21 +136,17 @@
             cursor: pointer;
             font-weight: bold;
             transition: 0.2s;
-            align-self: flex-start;
         }
 
-        .action-btn:hover { background: #218838; }
+        .action-btn:hover {
+            background: #218838;
+        }
 
         /* Changelog List */
         .changelog-list {
             display: flex;
             flex-direction: column;
             gap: 20px;
-            /* cho phép cuộn nội bộ nếu danh sách quá dài */
-            max-height: calc(100vh - 260px);
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            padding-right: 4px; /* tránh che thanh cuộn */
         }
 
         .log-item {
@@ -190,12 +183,20 @@
             transition: 0.2s;
         }
 
-        .log-actions button.edit-btn:hover { background: #ffc107; color: #000; }
-        .log-actions button.delete-btn:hover { background: #dc3545; }
+        .log-actions button.edit-btn:hover {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .log-actions button.delete-btn:hover {
+            background: #dc3545;
+        }
 
         /* Mobile Optimization */
         @media (max-width: 600px) {
-            h1 { font-size: 22px; }
+            h1 {
+                font-size: 22px;
+            }
             .eanh-btn {
                 position: relative;
                 display: inline-block;
@@ -203,182 +204,143 @@
                 right: 0;
                 margin-top: 15px;
             }
-
-            /* Trên màn nhỏ, đảm bảo body không giới hạn chiều rộng/căn giữa gây vấn đề cuộn */
-            body {
-                align-items: stretch;
-                padding: 14px;
-            }
-
-            .container {
-                padding: 0 8px;
-            }
-
-            /* bỏ giới hạn chiều cao cố định cho danh sách khi màn nhỏ (để dễ cuộn trang) */
-            .changelog-list {
-                max-height: none;
-                overflow-y: visible;
-                padding-right: 0;
-            }
-        }
-
-        /* small improvements for very long content on small screens */
-        @media (max-height: 520px) {
-            .changelog-list {
-                max-height: calc(100vh - 220px);
-            }
         }
     </style>
 </head>
 <body>
+    <div class="container">
+        <header>
+            <h1>Chi tiết bảo trì - EAnh <br><span style="font-size: 16px; color: #b3b3b3;">(Bấm vào chữ EAnh để quay về)</span></h1>
+            <div class="credits">
+                <p>Developer: Nguyen Hoang Anh</p>
+                <p>Tester: Nguyen Hoang Anh</p>
+                <p>Design: Nguyen Hoang Anh</p>
+                <p>Nickname: Zn</p>
+            </div>
+            <a href="https://zn29.ct.ws/" class="eanh-btn">EAnh</a>
+        </header>
 
-<div class="container">
-    <header>
-        <h1>Chi tiết bảo trì - EAnh <br><span style="font-size: 16px; color: #b3b3b3;">(Bấm vào chữ EAnh để quay về)</span></h1>
-        <div class="credits">
-            <p>Developer: Nguyen Hoang Anh</p>
-            <p>Tester: Nguyen Hoang Anh</p>
-            <p>Design: Nguyen Hoang Anh</p>
-            <p>Nickname: Zn</p>
+        <div class="admin-panel">
+            <h3 style="margin-bottom: 10px; font-size: 18px; color: #ffc107;">⚙️ Chế độ Quản trị viên</h3>
+            <input type="hidden" id="edit-id">
+            <input type="date" id="log-date">
+            <textarea id="log-content" placeholder="Nhập nội dung bảo trì..."></textarea>
+            <button class="action-btn" onclick="saveLog()">Lưu thông tin</button>
         </div>
-        <a href="https://zn29.ct.ws/" class="eanh-btn">EAnh</a>
-    </header>
 
-    <div class="admin-panel">
-        <h3 style="margin-bottom: 10px; font-size: 18px; color: #ffc107;">⚙️ Chế độ Quản trị viên</h3>
-        <input type="hidden" id="edit-id">
-        <input type="date" id="log-date">
-        <textarea id="log-content" placeholder="Nhập nội dung bảo trì..."></textarea>
-        <button class="action-btn" onclick="saveLog()">Lưu thông tin</button>
+        <div class="changelog-list" id="logs-container"></div>
     </div>
 
-    <div class="changelog-list" id="logs-container">
-    </div>
-</div>
-
-<script>
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('pass') === 'eanh') {
-        document.body.classList.add('is-admin');
-    }
-
-    // KHỞI TẠO DỮ LIỆU MẶC ĐỊNH
-    const defaultData = [
-        {
-            id: 1710320000000,
-            date: "2026-03-13",
-            content: "Sửa lỗi giao diện trên Mobile các phím không hoạt động, kiểm lỗi và kiểm tra hệ thống\nTình trạng: Đang bảo trì"
-        },
-        {
-            id: 1709974400000,
-            date: "2026-03-09",
-            content: "Cập nhật Đăng nhập Admin\nTình trạng: Đã xong"
-        },
-        {
-            id: 1709628800000,
-            date: "2026-03-05",
-            content: "Tối ưu hóa cơ sở dữ liệu bị mất chữ và bài viết trong 1 số thiết bị.\nTình trạng: Đã xong"
-        }
-    ];
-
-    let logs = JSON.parse(localStorage.getItem('eanh_changelogs'));
-    if (!logs || logs.length === 0) {
-        logs = defaultData;
-        localStorage.setItem('eanh_changelogs', JSON.stringify(logs));
-    }
-
-    function renderLogs() {
-        const container = document.getElementById('logs-container');
-        container.innerHTML = '';
-
-        logs.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        logs.forEach(log => {
-            const div = document.createElement('div');
-            div.className = 'log-item';
-
-            const dateObj = new Date(log.date);
-            const formattedDate = !isNaN(dateObj) ? dateObj.toLocaleDateString('vi-VN') : 'Chưa có ngày';
-
-            div.innerHTML = `
-                <div class="log-date">🕒 Ngày: ${formattedDate}</div>
-                <div class="log-content">${escapeHtml(log.content)}</div>
-                <div class="log-actions">
-                    <button class="edit-btn" onclick="editLog(${log.id})">Sửa</button>
-                    <button class="delete-btn" onclick="deleteLog(${log.id})">Xóa</button>
-                </div>
-            `;
-            container.appendChild(div);
-        });
-    }
-
-    // phòng trường hợp nội dung có ký tự HTML
-    function escapeHtml(unsafe) {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-    function saveLog() {
-        const dateInput = document.getElementById('log-date').value;
-        const contentInput = document.getElementById('log-content').value;
-        const editId = document.getElementById('edit-id').value;
-
-        if (!dateInput || !contentInput.trim()) {
-            alert("Vui lòng nhập đầy đủ ngày và nội dung!");
-            return;
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('pass') === 'eanh') {
+            document.body.classList.add('is-admin');
         }
 
-        if (editId) {
-            const index = logs.findIndex(l => l.id == editId);
-            if (index !== -1) {
-                logs[index].date = dateInput;
-                logs[index].content = contentInput;
+        // KHỞI TẠO DỮ LIỆU MẶC ĐỊNH
+        const defaultData = [
+            { 
+                id: 1710320000000, 
+                date: "2026-03-13", 
+                content: "Sửa lỗi giao diện trên Mobile các phím không hoạt động, kiểm lỗi và kiểm tra hệ thống\nTình trạng: Đang bảo trì" 
+            },
+            { 
+                id: 1709974400000, 
+                date: "2026-03-09", 
+                content: "Cập nhật Đăng nhập Admin\nTình trạng: Đã xong" 
+            },
+            { 
+                id: 1709628800000, 
+                date: "2026-03-05", 
+                content: "Tối ưu hóa cơ sở dữ liệu bị mất chữ và bài viết trong 1 số thiết bị.\nTình trạng: Đã xong" 
             }
-            document.getElementById('edit-id').value = '';
-        } else {
-            const newLog = {
-                id: Date.now(),
-                date: dateInput,
-                content: contentInput
-            };
-            logs.push(newLog);
-        }
+        ];
 
-        localStorage.setItem('eanh_changelogs', JSON.stringify(logs));
-        document.getElementById('log-date').value = '';
-        document.getElementById('log-content').value = '';
-        renderLogs();
-
-        /* trên mobile, cuộn nhẹ tới màn hình mới tạo (nếu có) để người dùng thấy kết quả */
-        setTimeout(() => {
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        }, 120);
-    }
-
-    function editLog(id) {
-        const log = logs.find(l => l.id == id);
-        if (log) {
-            document.getElementById('log-date').value = log.date;
-            document.getElementById('log-content').value = log.content;
-            document.getElementById('edit-id').value = log.id;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    }
-
-    function deleteLog(id) {
-        if (confirm("Bạn có chắc chắn muốn xóa nhật ký bảo trì này không?")) {
-            logs = logs.filter(l => l.id != id);
+        let logs = JSON.parse(localStorage.getItem('eanh_changelogs'));
+        if (!logs || logs.length === 0) {
+            logs = defaultData;
             localStorage.setItem('eanh_changelogs', JSON.stringify(logs));
+        }
+
+        function renderLogs() {
+            const container = document.getElementById('logs-container');
+            container.innerHTML = '';
+            
+            logs.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            logs.forEach(log => {
+                const div = document.createElement('div');
+                div.className = 'log-item';
+                
+                const dateObj = new Date(log.date);
+                const formattedDate = !isNaN(dateObj) ? dateObj.toLocaleDateString('vi-VN') : 'Chưa có ngày';
+                
+                // ĐÃ SỬA: Dùng template literal đúng cách (trước bị mất dấu ` khi paste)
+                div.innerHTML = `
+                    <div class="log-date">🕒 Ngày: ${formattedDate}</div>
+                    <div class="log-content">${log.content}</div>
+                    <div class="log-actions">
+                        <button class="edit-btn" onclick="editLog(${log.id})">Sửa</button>
+                        <button class="delete-btn" onclick="deleteLog(${log.id})">Xóa</button>
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+
+        function saveLog() {
+            const dateInput = document.getElementById('log-date').value;
+            const contentInput = document.getElementById('log-content').value;
+            const editId = document.getElementById('edit-id').value;
+
+            if (!dateInput || !contentInput.trim()) {
+                alert("Vui lòng nhập đầy đủ ngày và nội dung!");
+                return;
+            }
+
+            if (editId) {
+                const index = logs.findIndex(l => l.id == editId);
+                if (index !== -1) {
+                    logs[index].date = dateInput;
+                    logs[index].content = contentInput;
+                }
+                document.getElementById('edit-id').value = '';
+            } else {
+                const newLog = { 
+                    id: Date.now(), 
+                    date: dateInput, 
+                    content: contentInput 
+                };
+                logs.push(newLog);
+            }
+
+            localStorage.setItem('eanh_changelogs', JSON.stringify(logs));
+            document.getElementById('log-date').value = '';
+            document.getElementById('log-content').value = '';
             renderLogs();
         }
-    }
 
-    renderLogs();
-</script>
+        function editLog(id) {
+            const log = logs.find(l => l.id == id);
+            if (log) {
+                document.getElementById('log-date').value = log.date;
+                document.getElementById('log-content').value = log.content;
+                document.getElementById('edit-id').value = log.id;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
 
+        function deleteLog(id) {
+            if (confirm("Bạn có chắc chắn muốn xóa nhật ký bảo trì này không?")) {
+                logs = logs.filter(l => l.id != id);
+                localStorage.setItem('eanh_changelogs', JSON.stringify(logs));
+                renderLogs();
+            }
+        }
+
+        // Khởi chạy
+        renderLogs();
+    </script>
 </body>
 </html>

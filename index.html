@@ -169,6 +169,31 @@
       margin-top: 4px;
     }
 
+    /* MOBILE NOTICE - chỉ hiện trên điện thoại */
+    .mobile-notice { display: none; }
+
+    @media (max-width: 768px) {
+      .mobile-notice {
+        display: block;
+        margin-bottom: 16px;
+      }
+      .mobile-section-title {
+        font-size: 17px;
+        font-weight: bold;
+        color: var(--primary-glow);
+        margin-bottom: 8px;
+      }
+      .mobile-hint {
+        font-size: 13px;
+        color: var(--text-muted);
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 10px 14px;
+        line-height: 1.5;
+      }
+    }
+
     /* MOBILE */
     @media (max-width: 600px) {
       h1 { font-size: 20px; }
@@ -200,6 +225,12 @@
     <input type="date" id="log-date">
     <textarea id="log-content" placeholder="Nhập nội dung bảo trì..."></textarea>
     <button class="save-btn" onclick="saveLog()">💾 Lưu thông tin</button>
+  </div>
+
+  <!-- CHỈ HIỆN TRÊN MOBILE -->
+  <div class="mobile-notice">
+    <div class="mobile-section-title">📋 Các cập nhật gần nhất</div>
+    <div class="mobile-hint">💻 Để xem toàn bộ cập nhật hãy xem trên trình duyệt của PC của bạn</div>
   </div>
 
   <!-- DANH SÁCH -->
